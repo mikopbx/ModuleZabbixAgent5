@@ -6,6 +6,7 @@
  * Written by Alexey Portnov, 11 2018
  */
 namespace Modules\ModuleZabbixAgent5\App\Controllers;
+use Lib\ZabbixAgent5Main;
 use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\AdminCabinet\Providers\AssetProvider;
 use MikoPBX\Modules\PbxExtensionUtils;
@@ -48,7 +49,8 @@ class ModuleZabbixAgent5Controller extends BaseController
         $settings = ModuleZabbixAgent5::findFirst();
         if ($settings === null) {
             $settings = new ModuleZabbixAgent5();
-            $settings->configContent=file_get_contents("{$this->moduleDir}/Setup/zabbix/zabbix_agentd.conf");
+            $main = new ZabbixAgent5Main();
+            $settings->configContent=$main->module_settings['configContent'];
         }
         $this->view->form = new ModuleZabbixAgent5Form($settings);
         $this->view->pick("{$this->moduleDir}/App/Views/index");
@@ -68,7 +70,6 @@ class ModuleZabbixAgent5Controller extends BaseController
         if ($record === null) {
             $record = new ModuleZabbixAgent5();
         }
-        $this->db->begin();
         foreach ($record as $key => $value) {
             switch ($key) {
                 case 'id':
@@ -82,12 +83,7 @@ class ModuleZabbixAgent5Controller extends BaseController
             }
         }
 
-        if (!$this->saveEntity($record)) {
-            $this->db->rollback();
-            return;
-        }
-
-        $this->db->commit();
+       $this->saveEntity($record);
     }
 
 }
