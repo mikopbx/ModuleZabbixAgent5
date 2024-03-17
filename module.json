@@ -1,0 +1,7 @@
+{
+  "developer":"MIKO",
+  "moduleUniqueID":"ModuleZabbixAgent5",
+  "support_email": "help@miko.ru",
+  "version": "%ModuleVersion%",
+  "min_pbx_version": "2023.3.69"
+}
