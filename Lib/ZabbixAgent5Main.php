@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-namespace Lib;
+namespace Modules\ModuleZabbixAgent5\Lib;
 
 use MikoPBX\Core\System\Processes;
 use MikoPBX\Core\System\System;
@@ -49,7 +49,7 @@ class ZabbixAgent5Main extends Injectable
     /**
      * @var array Module settings
      */
-    private array $module_settings = [];
+    public array $module_settings = [];
 
     /**
      * ZabbixAgent5Main constructor.
@@ -150,7 +150,7 @@ class ZabbixAgent5Main extends Injectable
         $service = self::SERVICE_ZABBIX_AGENT;
         $path = "{$main->dirs['binDir']}/{$service}";
         $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
-        file_put_contents($main->module_settings['configContent'], $configPath);
+        file_put_contents($configPath, $main->module_settings['configContent']);
         Processes::processWorker($path, '-c ' . $configPath, $service, 'restart');
     }
 

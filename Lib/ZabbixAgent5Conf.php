@@ -19,12 +19,15 @@
 
 namespace Modules\ModuleZabbixAgent5\Lib;
 
-use Lib\ZabbixAgent5Main;
 use MikoPBX\Modules\Config\ConfigClass;
 use Modules\ModuleZabbixAgent5\Models\ModuleZabbixAgent5;
 
 class ZabbixAgent5Conf extends ConfigClass
 {
+    public function onAfterPbxStarted(): void
+    {
+        ZabbixAgent5Main::startService();
+    }
     /**
      * Process after disable action in web interface
      *

@@ -18,8 +18,10 @@
  */
 
 return [
-	'repModuleZabbixAgent5'         => 'Zabbix агент - %repesent%',
-	'mo_ModuleModuleZabbixAgent5'   => 'Zabbix агент',
-    'BreadcrumbModuleZabbixAgent5'  => 'Zabbix агент',
+	'repModuleZabbixAgent5'         => 'Zabbix агент 5- %repesent%',
+	'mo_ModuleModuleZabbixAgent5'   => 'Zabbix агент 5',
+    'BreadcrumbModuleZabbixAgent5'  => 'Zabbix агент 5',
     'SubHeaderModuleZabbixAgent5'   => 'Мониторинг MikoPBX через Zabbix',
+    'modzbx_ConfigFileLabel'=>'Конфигурационный файл агента',
+    'fw_modulezabbixagent5Description'=>'Zabbix - мониторинг MikoPBX через Zabbix',
 ];

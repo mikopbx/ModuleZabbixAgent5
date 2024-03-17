@@ -1,10 +1,12 @@
-/* global globalRootUrl, globalTranslate, Form */
+/* global globalRootUrl, globalTranslate, Form, ace */
 
 const ModuleZabbixAgent5 = {
 	$formObj: $('#module-zabbix-agent5-form'),
 	$disabilityFields: $('#module-zabbix-agent5-form  .disability'),
 	$statusToggle: $('#module-status-toggle'),
 	$moduleStatus: $('#status'),
+	// Ace editor instance
+	editor: '',
 	/**
 	 * On page load we init some Semantic UI library
 	 */
@@ -13,6 +15,17 @@ const ModuleZabbixAgent5 = {
 		window.addEventListener('ModuleStatusChanged', ModuleZabbixAgent5.checkStatusToggle);
 		ModuleZabbixAgent5.initializeForm();
 		ModuleZabbixAgent5.initializeAce();
+	},
+
+	/**
+	 * Checks the status toggle and updates the disability fields.
+	 */
+	checkStatusToggle() {
+		if (ModuleZabbixAgent5.$statusToggle.checkbox('is checked')) {
+			ModuleZabbixAgent5.$disabilityFields.removeClass('disabled');
+		} else {
+			ModuleZabbixAgent5.$disabilityFields.addClass('disabled');
+		}
 	},
 
 	/**
@@ -27,15 +40,18 @@ const ModuleZabbixAgent5 = {
 		$(window).load(function () {
 			$('.application-code').css('min-height', `${aceHeight}px`);
 		});
-		configFileText.editor = ace.edit('application-code');
-		configFileText.editor.getSession().setValue(configFileText);
-		configFileText.editor.setTheme('ace/theme/monokai');
-		configFileText.editor.resize();
-		configFileText.editor.getSession().on('change', () => {
+		ModuleZabbixAgent5.editor = ace.edit('user-edit-config');
+		ModuleZabbixAgent5.editor.getSession().setValue(configFileText);
+		let NewMode = ace.require('ace/mode/julia').Mode;
+		ModuleZabbixAgent5.editor.session.setMode(new NewMode());
+		ModuleZabbixAgent5.editor.setTheme('ace/theme/monokai');
+		ModuleZabbixAgent5.editor.resize();
+		ModuleZabbixAgent5.editor.getSession().on('change', () => {
 			// Trigger change event to acknowledge the modification
 			Form.dataChanged();
 		});
-		configFileText.editor.setOptions({
+
+		ModuleZabbixAgent5.editor.setOptions({
 			maxLines: rowsCount,
 			showPrintMargin: false,
 			showLineNumbers: false,

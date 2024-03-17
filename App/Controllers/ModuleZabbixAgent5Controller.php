@@ -17,7 +17,7 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 namespace Modules\ModuleZabbixAgent5\App\Controllers;
-use Lib\ZabbixAgent5Main;
+use Modules\ModuleZabbixAgent5\Lib\ZabbixAgent5Main;
 use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\AdminCabinet\Providers\AssetProvider;
 use MikoPBX\Modules\PbxExtensionUtils;
