@@ -1,26 +1,25 @@
 <?php
-/**
- * Copyright (C) MIKO LLC - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Nikolay Beketov, 6 2018
+/*
+ * MikoPBX - free phone system for small business
+ * Copyright © 2017-2024 Alexey Portnov and Nikolay Beketov
  *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <https://www.gnu.org/licenses/>.
  */
 
 return [
-	'repModuleZabbixAgent5'       => 'Module template - %repesent%',
-	'mo_ModuleModuleZabbixAgent5' => 'Module template',
-    'BreadcrumbModuleZabbixAgent5'=> 'Template module',
-    'SubHeaderModuleZabbixAgent5' => 'Example to create own modules',
-    'module_zabbix_agent5TextFieldLabel'        => 'Text field example',
-    'module_zabbix_agent5TextAreaFieldLabel'    => 'TextArea field example',
-    'module_zabbix_agent5PasswordFieldLabel'    => 'Password field example',
-    'module_zabbix_agent5IntegerFieldLabel'     => 'Integer field example',
-    'module_zabbix_agent5CheckBoxFieldLabel'    => 'CheckBox',
-    'module_zabbix_agent5ToggleFieldLabel'      => 'Toggle',
-    'module_zabbix_agent5DropDownFieldLabel'    => 'Dropdown menu',
-    'module_zabbix_agent5ValidateValueIsEmpty'  => 'Check the field, it looks like empty',
-    'module_zabbix_agent5Connected'             => 'Module connected',
-    'module_zabbix_agent5Disconnected'          => 'Module disconnected',
-    'module_zabbix_agent5UpdateStatus'          => 'Update module status',
+	'repModuleZabbixAgent5'       => 'Zabbix agent - %repesent%',
+	'mo_ModuleModuleZabbixAgent5' => 'Zabbix agent',
+    'BreadcrumbModuleZabbixAgent5'=> 'Zabbix agent',
+    'SubHeaderModuleZabbixAgent5' => 'MikoPBX monitoring by zabbix',
 ];

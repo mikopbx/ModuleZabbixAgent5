@@ -1,112 +1,78 @@
-/*
- * Copyright (C) MIKO LLC - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- * Written by Nikolay Beketov, 11 2018
- *
- */
-
-/* global globalRootUrl, globalTranslate, Form, Config */
+/* global globalRootUrl, globalTranslate, Form, ace */
 
 const ModuleZabbixAgent5 = {
 	$formObj: $('#module-zabbix-agent5-form'),
-	$checkBoxes: $('#module-zabbix-agent5-form .ui.checkbox'),
-	$dropDowns: $('#module-zabbix-agent5-form .ui.dropdown'),
 	$disabilityFields: $('#module-zabbix-agent5-form  .disability'),
 	$statusToggle: $('#module-status-toggle'),
 	$moduleStatus: $('#status'),
-	/**
-	 * Field validation rules
-	 * https://semantic-ui.com/behaviors/form.html
-	 */
-	validateRules: {
-		textField: {
-			identifier: 'text_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
-		areaField: {
-			identifier: 'text_area_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
-		passwordField: {
-			identifier: 'password_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
-	},
+	// Ace editor instance
+	editor: '',
 	/**
 	 * On page load we init some Semantic UI library
 	 */
 	initialize() {
-		// инициализируем чекбоксы и выподающие менюшки
-		ModuleZabbixAgent5.$checkBoxes.checkbox();
-		ModuleZabbixAgent5.$dropDowns.dropdown();
 		ModuleZabbixAgent5.checkStatusToggle();
 		window.addEventListener('ModuleStatusChanged', ModuleZabbixAgent5.checkStatusToggle);
 		ModuleZabbixAgent5.initializeForm();
+		ModuleZabbixAgent5.initializeAce();
 	},
+
 	/**
-	 * Change some form elements classes depends of module status
+	 * Checks the status toggle and updates the disability fields.
 	 */
 	checkStatusToggle() {
 		if (ModuleZabbixAgent5.$statusToggle.checkbox('is checked')) {
 			ModuleZabbixAgent5.$disabilityFields.removeClass('disabled');
-			ModuleZabbixAgent5.$moduleStatus.show();
 		} else {
 			ModuleZabbixAgent5.$disabilityFields.addClass('disabled');
-			ModuleZabbixAgent5.$moduleStatus.hide();
 		}
 	},
+
 	/**
-	 * Send command to restart module workers after data changes,
-	 * Also we can do it on TemplateConf->modelsEventChangeData method
+	 * Initializes the Ace editor instance.
+	 * Sets up Ace editor with a monokai theme and custom options.
+	 * Attaches change handler to the editor session.
 	 */
-	applyConfigurationChanges() {
-		ModuleZabbixAgent5.changeStatus('Updating');
-		$.api({
-			url: `${Config.pbxUrl}/pbxcore/api/modules/ModuleZabbixAgent5/reload`,
-			on: 'now',
-			successTest(response) {
-				// test whether a JSON response is valid
-				return Object.keys(response).length > 0 && response.result === true;
-			},
-			onSuccess() {
-				ModuleZabbixAgent5.changeStatus('Connected');
-			},
-			onFailure() {
-				ModuleZabbixAgent5.changeStatus('Disconnected');
-			},
+	initializeAce() {
+		const configFileText = ModuleZabbixAgent5.$formObj.form('get value', 'configContent');
+		const aceHeight = window.innerHeight - 380;
+		const rowsCount = Math.round(aceHeight / 16.3);
+		$(window).load(function () {
+			$('.application-code').css('min-height', `${aceHeight}px`);
+		});
+		ModuleZabbixAgent5.editor = ace.edit('user-edit-config');
+		ModuleZabbixAgent5.editor.getSession().setValue(configFileText);
+		let NewMode = ace.require('ace/mode/julia').Mode;
+		ModuleZabbixAgent5.editor.session.setMode(new NewMode());
+		ModuleZabbixAgent5.editor.setTheme('ace/theme/monokai');
+		ModuleZabbixAgent5.editor.resize();
+		ModuleZabbixAgent5.editor.getSession().on('change', () => {
+			// Trigger change event to acknowledge the modification
+			Form.dataChanged();
+		});
+
+		ModuleZabbixAgent5.editor.setOptions({
+			maxLines: rowsCount,
+			showPrintMargin: false,
+			showLineNumbers: false,
 		});
 	},
 	/**
-	 * We can modify some data before form send
-	 * @param settings
-	 * @returns {*}
+	 * Callback function to be called before the form is sent
+	 * @param {Object} settings - The current settings of the form
+	 * @returns {Object} - The updated settings of the form
 	 */
 	cbBeforeSendForm(settings) {
 		const result = settings;
 		result.data = ModuleZabbixAgent5.$formObj.form('get values');
+		result.data.configContent = ModuleZabbixAgent5.editor.getValue();
 		return result;
 	},
 	/**
 	 * Some actions after forms send
 	 */
 	cbAfterSendForm() {
-		ModuleZabbixAgent5.applyConfigurationChanges();
+
 	},
 	/**
 	 * Initialize form parameters
@@ -118,42 +84,6 @@ const ModuleZabbixAgent5 = {
 		Form.cbBeforeSendForm = ModuleZabbixAgent5.cbBeforeSendForm;
 		Form.cbAfterSendForm = ModuleZabbixAgent5.cbAfterSendForm;
 		Form.initialize();
-	},
-	/**
-	 * Update the module state on form label
-	 * @param status
-	 */
-	changeStatus(status) {
-		switch (status) {
-			case 'Connected':
-				ModuleZabbixAgent5.$moduleStatus
-					.removeClass('grey')
-					.removeClass('red')
-					.addClass('green');
-				ModuleZabbixAgent5.$moduleStatus.html(globalTranslate.module_zabbix_agent5Connected);
-				break;
-			case 'Disconnected':
-				ModuleZabbixAgent5.$moduleStatus
-					.removeClass('green')
-					.removeClass('red')
-					.addClass('grey');
-				ModuleZabbixAgent5.$moduleStatus.html(globalTranslate.module_zabbix_agent5Disconnected);
-				break;
-			case 'Updating':
-				ModuleZabbixAgent5.$moduleStatus
-					.removeClass('green')
-					.removeClass('red')
-					.addClass('grey');
-				ModuleZabbixAgent5.$moduleStatus.html(`<i class="spinner loading icon"></i>${globalTranslate.module_zabbix_agent5UpdateStatus}`);
-				break;
-			default:
-				ModuleZabbixAgent5.$moduleStatus
-					.removeClass('green')
-					.removeClass('red')
-					.addClass('grey');
-				ModuleZabbixAgent5.$moduleStatus.html(globalTranslate.module_zabbix_agent5Disconnected);
-				break;
-		}
 	},
 };
 
