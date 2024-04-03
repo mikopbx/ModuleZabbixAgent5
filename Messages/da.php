@@ -18,9 +18,9 @@ return [
  * If not, see <https://www.gnu.org/licenses/>.
  */
     'repModuleZabbixAgent5' => '',
-    'mo_ModuleModuleZabbixAgent5' => '',
-    'BreadcrumbModuleZabbixAgent5' => '',
-    'SubHeaderModuleZabbixAgent5' => '',
-    'modzbx_ConfigFileLabel' => '',
-    'fw_modulezabbixagent5Description' => '',
+    'mo_ModuleModuleZabbixAgent5' => 'Zabbix agent 5',
+    'BreadcrumbModuleZabbixAgent5' => 'Zabbix agent 5',
+    'SubHeaderModuleZabbixAgent5' => 'Overvågning af MikoPBX via Zabbix',
+    'modzbx_ConfigFileLabel' => 'Agent konfigurationsfil',
+    'fw_modulezabbixagent5Description' => 'Zabbix - overvågning af MikoPBX via Zabbix',
 ];
