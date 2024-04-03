@@ -1,5 +1,6 @@
 <?php
-/*
+return [
+    /*
  * MikoPBX - free phone system for small business
  * Copyright © 2017-2024 Alexey Portnov and Nikolay Beketov
  *
@@ -16,10 +17,10 @@
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-
-return [
-	'repModuleZabbixAgent5'       => 'Zabbix agent - %repesent%',
-	'mo_ModuleModuleZabbixAgent5' => 'Zabbix agent',
-    'BreadcrumbModuleZabbixAgent5'=> 'Zabbix agent',
+    'repModuleZabbixAgent5' => 'Zabbix agent - %repesent%',
+    'mo_ModuleModuleZabbixAgent5' => 'Zabbix agent',
+    'BreadcrumbModuleZabbixAgent5' => 'Zabbix agent',
     'SubHeaderModuleZabbixAgent5' => 'MikoPBX monitoring by zabbix',
+    'modzbx_ConfigFileLabel' => 'Agent configuration file',
+    'fw_modulezabbixagent5Description' => 'Zabbix - monitoring MikoPBX via Zabbix',
 ];
