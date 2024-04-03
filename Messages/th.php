@@ -17,10 +17,10 @@ return [
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-    'repModuleZabbixAgent5' => '',
-    'mo_ModuleModuleZabbixAgent5' => '',
-    'BreadcrumbModuleZabbixAgent5' => '',
-    'SubHeaderModuleZabbixAgent5' => '',
-    'modzbx_ConfigFileLabel' => '',
-    'fw_modulezabbixagent5Description' => '',
+    'repModuleZabbixAgent5' => 'ตัวแทน Zabbix 5- %repesent%',
+    'mo_ModuleModuleZabbixAgent5' => 'ตัวแทนแซบบิกซ์ 5',
+    'BreadcrumbModuleZabbixAgent5' => 'ตัวแทนแซบบิกซ์ 5',
+    'SubHeaderModuleZabbixAgent5' => 'ตรวจสอบ MikoPBX ผ่าน Zabbix',
+    'modzbx_ConfigFileLabel' => 'ไฟล์คอนฟิกูเรชันเอเจนต์',
+    'fw_modulezabbixagent5Description' => 'Zabbix - ตรวจสอบ MikoPBX ผ่าน Zabbix',
 ];
