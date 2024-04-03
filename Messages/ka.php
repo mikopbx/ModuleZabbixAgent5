@@ -17,10 +17,10 @@ return [
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-    'repModuleZabbixAgent5' => '',
-    'mo_ModuleModuleZabbixAgent5' => '',
-    'BreadcrumbModuleZabbixAgent5' => '',
-    'SubHeaderModuleZabbixAgent5' => '',
-    'modzbx_ConfigFileLabel' => '',
-    'fw_modulezabbixagent5Description' => '',
+    'repModuleZabbixAgent5' => 'Zabbix აგენტი 5- %repesent%',
+    'mo_ModuleModuleZabbixAgent5' => 'Zabbix აგენტი 5',
+    'BreadcrumbModuleZabbixAgent5' => 'Zabbix აგენტი 5',
+    'SubHeaderModuleZabbixAgent5' => 'MikoPBX-ის მონიტორინგი Zabbix-ის საშუალებით',
+    'modzbx_ConfigFileLabel' => 'აგენტის კონფიგურაციის ფაილი',
+    'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX-ის მონიტორინგი Zabbix-ის საშუალებით',
 ];
