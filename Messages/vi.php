@@ -17,10 +17,10 @@ return [
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-    'repModuleZabbixAgent5' => '',
-    'mo_ModuleModuleZabbixAgent5' => '',
-    'BreadcrumbModuleZabbixAgent5' => '',
-    'SubHeaderModuleZabbixAgent5' => '',
-    'modzbx_ConfigFileLabel' => '',
-    'fw_modulezabbixagent5Description' => '',
+    'repModuleZabbixAgent5' => 'Đại lý Zabbix 5- %repesent%',
+    'mo_ModuleModuleZabbixAgent5' => 'Đặc vụ Zabbix 5',
+    'BreadcrumbModuleZabbixAgent5' => 'Đặc vụ Zabbix 5',
+    'SubHeaderModuleZabbixAgent5' => 'Giám sát MikoPBX qua Zabbix',
+    'modzbx_ConfigFileLabel' => 'Tập tin cấu hình đại lý',
+    'fw_modulezabbixagent5Description' => 'Zabbix - giám sát MikoPBX qua Zabbix',
 ];
