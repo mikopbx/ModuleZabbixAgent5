@@ -1,0 +1,100 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: 1d12408342854fd5a4436dd6d5d1bd4a
+      name: Templates/Telephony
+  templates:
+    - uuid: f4990f9a568d4d8abfb6f972fd3e40e8
+      template: 'MikoPBX monitoring'
+      name: 'MikoPBX monitoring'
+      groups:
+        - name: Templates/Telephony
+      items:
+        - uuid: 122ccdda2a6544ccb61bcc29c0064f7a
+          name: 'MikoPBX: Active calls'
+          key: 'asterisk[callsActive]'
+          history: 7d
+          units: calls
+          description: 'The number of active calls at the moment.'
+        - uuid: 8b1a6cbc57584eb1948da54fbf959dcf
+          name: 'MikoPBX: Calls processed'
+          key: 'asterisk[callsProcessed]'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'The number of calls processed after the last service restart.'
+        - uuid: 3b49a30b1b164814b3bad48e5aed4d79
+          name: 'MikoPBX: Active channels'
+          key: 'asterisk[channelsActive]'
+          history: 7d
+          units: channels
+          description: 'The number of active channels at the moment.'
+        - uuid: 7749241c7eb849acac1b8453cc7191ee
+          name: 'MikoPBX: Count active SIP peers'
+          key: 'asterisk[CountActivePeers]'
+          history: 7d
+          units: peers
+          description: 'Function to check the number of active SIP peers'
+        - uuid: 3254841a3e4847fa983bacf6deeaaa96
+          name: 'MikoPBX: Count active trunks'
+          key: 'asterisk[CountActiveProviders]'
+          history: 7d
+          trends: '0'
+          units: trunks
+          description: 'Function to check the number of trunks that are active'
+        - uuid: f29a0bf340054c0296c3a96db7b06556
+          name: 'MikoPBX: Count incoming calls'
+          key: 'asterisk[countInCalls]'
+          history: 7d
+          units: calls
+          description: 'The count of processed incoming calls'
+        - uuid: e73ed8ab1ddb4baeaf5fabd281dac6b7
+          name: 'MikoPBX: Count inner calls'
+          key: 'asterisk[countInnerCalls]'
+          history: 7d
+          units: calls
+          description: 'The count of processed inner calls'
+        - uuid: b001fbc421e24c43ad81b43699cd8902
+          name: 'MikoPBX: Count non active trunks'
+          key: 'asterisk[CountNonActiveProviders]'
+          history: 7d
+          trends: '0'
+          units: trunks
+          description: 'Function to check the number of trunks that are not active'
+        - uuid: 658f5fd7fa094193ad6212141ef32282
+          name: 'MikoPBX: Count outgoing calls'
+          key: 'asterisk[countOutCalls]'
+          history: 7d
+          units: calls
+          description: 'The count of processed outgoing calls'
+        - uuid: dd904418bed9483497a7e9cf44256103
+          name: 'MikoPBX: SIP peers count'
+          key: 'asterisk[countSipPeers]'
+          history: 7d
+          units: peers
+          description: 'Function to check the number of SIP peers'
+        - uuid: 84e98b4e6c53487b96afe205e05055b8
+          name: 'MikoPBX: Asterisk last reload'
+          key: 'asterisk[statusReload]'
+          history: 180d
+          trends: '0'
+          value_type: TEXT
+        - uuid: 19524424a4f940ada1e0e33eddf92256
+          name: 'MikoPBX: Uptime after reload'
+          key: 'asterisk[statusUptime]'
+          history: 7d
+          trends: '0'
+          value_type: TEXT
+          description: 'Function to check the uptime of Asterisk'
+        - uuid: 2a394e224dea41c381273d7bffc28e15
+          name: 'MikoPBX: Asterisk started'
+          key: 'asterisk[status]'
+          history: 7d
+          description: 'Get the last reload time in seconds and convert it to human-readable format'
+        - uuid: 03834698b7e84af286093c44234b3b32
+          name: 'MikoPBX: Asterisk version'
+          key: 'asterisk[version]'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          description: 'Service version'
