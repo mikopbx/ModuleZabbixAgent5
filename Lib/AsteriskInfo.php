@@ -24,8 +24,8 @@ namespace Modules\ModuleZabbixAgent5\Lib;
 use JsonException;
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\PBXCoreREST\Lib\CdrDBProcessor;
-use MikoPBX\PBXCoreREST\Lib\Sip\GetPeersStatuses;
-use MikoPBX\PBXCoreREST\Lib\Sip\GetRegistry;
+use MikoPBX\PBXCoreREST\Lib\Sip\GetPeersStatusesAction;
+use MikoPBX\PBXCoreREST\Lib\Sip\GetRegistryAction;
 
 // Include global variables and functions
 require_once 'Globals.php';
@@ -121,7 +121,7 @@ class AsteriskInfo
     public static function getCountActivePeers(): void
     {
         $ch = 0;
-        $peers = GetPeersStatuses::main()->data;
+        $peers = GetPeersStatusesAction::main()->data;
         foreach ($peers as $peer) {
             if ("OK" === $peer['state'] && is_numeric($peer['id'])) {
                 $ch++;
@@ -134,7 +134,7 @@ class AsteriskInfo
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
-        $peers = GetRegistry::main()->data;
+        $peers = GetRegistryAction::main()->data;
         foreach ($peers as $peer) {
             if ("OK" === $peer['state'] || 'REGISTERED' === $peer['state']) {
                 $ch++;
@@ -147,7 +147,7 @@ class AsteriskInfo
     public static function getCountNonActiveProviders(): void
     {
         $ch = 0;
-        $peers = GetRegistry::main()->data;
+        $peers = GetRegistryAction::main()->data;
         foreach ($peers as $peer) {
             if ("OK" !== $peer['state'] && 'REGISTERED' !== $peer['state'] && 'OFF' !== $peer['state']) {
                 $ch++;
