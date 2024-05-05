@@ -23,9 +23,8 @@ namespace Modules\ModuleZabbixAgent5\Lib;
 // Include necessary classes and exceptions
 use JsonException;
 use MikoPBX\Common\Models\Extensions;
-use MikoPBX\PBXCoreREST\Lib\CdrDBProcessor;
-use MikoPBX\PBXCoreREST\Lib\Sip\GetPeersStatusesAction;
-use MikoPBX\PBXCoreREST\Lib\Sip\GetRegistryAction;
+use MikoPBX\Common\Providers\PBXCoreRESTClientProvider;
+use Phalcon\Di;
 
 // Include global variables and functions
 require_once 'Globals.php';
@@ -48,9 +47,17 @@ class AsteriskInfo
     // Retrieves active calls from the CDR (Call Detail Record) database
     public static function getActiveCalls(): array
     {
-        $data = CdrDBProcessor::getActiveCalls()->data[0] ?? '';
         try {
-            $result = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+            // Get user data from the API
+            $di = Di::getDefault();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/cdr/getActiveCalls',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if (!$restAnswer->success){
+                return [];
+            }
+            $result = json_decode($restAnswer->data, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             // In case of JSON decoding error, return an empty array
             $result = [];
@@ -121,7 +128,16 @@ class AsteriskInfo
     public static function getCountActivePeers(): void
     {
         $ch = 0;
-        $peers = GetPeersStatusesAction::main()->data;
+        // Get user data from the API
+        $di = Di::getDefault();
+        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+            '/pbxcore/api/sip/getPeersStatuses',
+            PBXCoreRESTClientProvider::HTTP_METHOD_GET
+        ]);
+        if (!$restAnswer->success){
+            return;
+        }
+        $peers = $restAnswer->data;
         foreach ($peers as $peer) {
             if ("OK" === $peer['state'] && is_numeric($peer['id'])) {
                 $ch++;
@@ -134,7 +150,18 @@ class AsteriskInfo
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
-        $peers = GetRegistryAction::main()->data;
+
+        // Get user data from the API
+        $di = Di::getDefault();
+        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+            '/pbxcore/api/sip/getRegistry',
+            PBXCoreRESTClientProvider::HTTP_METHOD_GET
+        ]);
+        if (!$restAnswer->success){
+            return;
+        }
+
+        $peers = $restAnswer->data;
         foreach ($peers as $peer) {
             if ("OK" === $peer['state'] || 'REGISTERED' === $peer['state']) {
                 $ch++;
@@ -147,7 +174,16 @@ class AsteriskInfo
     public static function getCountNonActiveProviders(): void
     {
         $ch = 0;
-        $peers = GetRegistryAction::main()->data;
+        // Get user data from the API
+        $di = Di::getDefault();
+        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+            '/pbxcore/api/sip/getRegistry',
+            PBXCoreRESTClientProvider::HTTP_METHOD_GET
+        ]);
+        if (!$restAnswer->success){
+            return;
+        }
+        $peers = $restAnswer->data;
         foreach ($peers as $peer) {
             if ("OK" !== $peer['state'] && 'REGISTERED' !== $peer['state'] && 'OFF' !== $peer['state']) {
                 $ch++;
