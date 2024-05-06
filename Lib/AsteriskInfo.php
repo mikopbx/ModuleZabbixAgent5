@@ -57,7 +57,7 @@ class AsteriskInfo
             if (!$restAnswer->success){
                 return [];
             }
-            $result = json_decode($restAnswer->data, true, 512, JSON_THROW_ON_ERROR);
+            $result = json_decode($restAnswer->data, true, 512, JSON_THROW_ON_ERROR)??[];
         } catch (JsonException $e) {
             // In case of JSON decoding error, return an empty array
             $result = [];
