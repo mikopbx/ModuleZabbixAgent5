@@ -18,9 +18,9 @@ return [
  * If not, see <https://www.gnu.org/licenses/>.
  */
     'repModuleZabbixAgent5' => '',
-    'mo_ModuleModuleZabbixAgent5' => '',
-    'BreadcrumbModuleZabbixAgent5' => '',
-    'SubHeaderModuleZabbixAgent5' => '',
-    'modzbx_ConfigFileLabel' => '',
-    'fw_modulezabbixagent5Description' => '',
+    'mo_ModuleModuleZabbixAgent5' => 'Zabbix ügynök 5',
+    'BreadcrumbModuleZabbixAgent5' => 'Zabbix ügynök 5',
+    'SubHeaderModuleZabbixAgent5' => 'A MikoPBX felügyelete a Zabbix segítségével',
+    'modzbx_ConfigFileLabel' => 'Ügynök konfigurációs fájl',
+    'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX monitorozás a Zabbix segítségével',
 ];
