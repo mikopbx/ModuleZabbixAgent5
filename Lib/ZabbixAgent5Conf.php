@@ -52,9 +52,9 @@ class ZabbixAgent5Conf extends ConfigClass
     /**
      * Обработчик события изменения данных в базе настроек mikopbx.db.
      *
-     * @param $data
+     * @param mixed $data
      */
-    public function modelsEventChangeData($data): void
+    public function modelsEventChangeData(mixed $data): void
     {
         if ($data['model'] === ModuleZabbixAgent5::class) {
             ZabbixAgent5Main::startService();
