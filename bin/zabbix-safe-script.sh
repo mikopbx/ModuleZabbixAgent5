@@ -13,6 +13,13 @@ arch=$(uname -m)
 if [[ "$arch" == "x86_64" || "$arch" == "i386" || "$arch" == "i686" ]]; then
     agentBinary="zabbix_agentd"
 elif [[ "$arch" == "armv7l" || "$arch" == "armv8" || "$arch" == "aarch64" ]]; then
+    # Check if /offload/rootfs/usr/lib/libpcre.so.3 exists, if not create a symlink to libpcre.so.1.2.13
+    if [ ! -f /offload/rootfs/usr/lib/libpcre.so.3 ]; then
+        echo "Creating symlink for libpcre.so.3..."
+        /bin/mount -o remount,rw /offload/
+        ln -s /offload/rootfs/usr/lib/libpcre.so.1.2.13 /offload/rootfs/usr/lib/libpcre.so.3
+        /bin/mount -o remount,ro /offload/
+    fi
     agentBinary="zabbix_agentd_arm"
 else
     echo "Unsupported architecture: $arch"
