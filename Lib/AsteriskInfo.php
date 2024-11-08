@@ -22,9 +22,10 @@ namespace Modules\ModuleZabbixAgent5\Lib;
 
 // Include necessary classes and exceptions
 use JsonException;
+use Lib\MikoPBXVersion;
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Common\Providers\PBXCoreRESTClientProvider;
-use Phalcon\Di;
+
 
 // Include global variables and functions
 require_once 'Globals.php';
@@ -49,7 +50,7 @@ class AsteriskInfo
     {
         try {
             // Get user data from the API
-            $di = Di::getDefault();
+            $di = MikoPBXVersion::getDefaultDi();
             $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
                 '/pbxcore/api/cdr/getActiveCalls',
                 PBXCoreRESTClientProvider::HTTP_METHOD_GET
@@ -129,7 +130,7 @@ class AsteriskInfo
     {
         $ch = 0;
         // Get user data from the API
-        $di = Di::getDefault();
+        $di = MikoPBXVersion::getDefaultDi();
         $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
             '/pbxcore/api/sip/getPeersStatuses',
             PBXCoreRESTClientProvider::HTTP_METHOD_GET
@@ -152,7 +153,7 @@ class AsteriskInfo
         $ch = 0;
 
         // Get user data from the API
-        $di = Di::getDefault();
+        $di = MikoPBXVersion::getDefaultDi();
         $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
             '/pbxcore/api/sip/getRegistry',
             PBXCoreRESTClientProvider::HTTP_METHOD_GET
@@ -175,7 +176,7 @@ class AsteriskInfo
     {
         $ch = 0;
         // Get user data from the API
-        $di = Di::getDefault();
+        $di = MikoPBXVersion::getDefaultDi();
         $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
             '/pbxcore/api/sip/getRegistry',
             PBXCoreRESTClientProvider::HTTP_METHOD_GET
