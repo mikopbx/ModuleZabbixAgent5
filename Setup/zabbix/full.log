@@ -1,0 +1,98 @@
+ 64811:20201126:120437.780 Starting Zabbix Agent [mikopbx]. Zabbix 5.0.1 (revision c2a0b03480).
+ 64811:20201126:120437.780 **** Enabled features ****
+ 64811:20201126:120437.780 IPv6 support:           NO
+ 64811:20201126:120437.780 TLS support:           YES
+ 64811:20201126:120437.780 **************************
+ 64811:20201126:120437.780 using configuration file: /etc/zabbix/zabbix_agentd.conf
+ 64811:20201126:120437.780 agent #0 started [main process]
+ 64816:20201126:120437.780 agent #5 started [active checks #1]
+ 64815:20201126:120437.781 agent #4 started [listener #3]
+ 64814:20201126:120437.782 agent #3 started [listener #2]
+ 64813:20201126:120437.784 agent #2 started [listener #1]
+ 64816:20201126:120437.786 active check configuration update from [172.16.156.223:10051] started to fail (cannot connect to [[172.16.156.223]:10051]: [111] Connection refused)
+ 64812:20201126:120437.786 agent #1 started [collector]
+ 64813:20201126:120514.227 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64811:20201126:120601.056 Got signal [signal:15(SIGTERM),sender_pid:61781,sender_uid:0,reason:0]. Exiting ...
+ 64811:20201126:120601.057 Zabbix Agent stopped. Zabbix 5.0.1 (revision c2a0b03480).
+ 64887:20201126:120607.814 Starting Zabbix Agent [mikopbx]. Zabbix 5.0.1 (revision c2a0b03480).
+ 64887:20201126:120607.814 **** Enabled features ****
+ 64887:20201126:120607.814 IPv6 support:           NO
+ 64887:20201126:120607.814 TLS support:           YES
+ 64887:20201126:120607.814 **************************
+ 64887:20201126:120607.814 using configuration file: /etc/zabbix/zabbix_agentd.conf
+ 64887:20201126:120607.814 agent #0 started [main process]
+ 64892:20201126:120607.814 agent #5 started [active checks #1]
+ 64891:20201126:120607.815 agent #4 started [listener #3]
+ 64890:20201126:120607.817 agent #3 started [listener #2]
+ 64889:20201126:120607.818 agent #2 started [listener #1]
+ 64892:20201126:120607.822 active check configuration update from [172.16.156.223:10051] started to fail (cannot connect to [[172.16.156.223]:10051]: [111] Connection refused)
+ 64888:20201126:120607.823 agent #1 started [collector]
+ 64889:20201126:120614.305 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:120714.361 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:120814.413 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:120914.505 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:121014.588 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:121114.669 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:121214.750 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122428.287 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122443.432 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122458.443 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122513.459 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122613.513 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122713.565 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64889:20201126:122813.630 failed to accept an incoming connection: connection from "172.16.156.181" rejected, allowed hosts: "172.16.156.223"
+ 64887:20201126:122834.610 Got signal [signal:15(SIGTERM),sender_pid:61781,sender_uid:0,reason:0]. Exiting ...
+ 64887:20201126:122834.611 Zabbix Agent stopped. Zabbix 5.0.1 (revision c2a0b03480).
+  1841:20201126:122838.526 Starting Zabbix Agent [mikopbx]. Zabbix 5.0.1 (revision c2a0b03480).
+  1841:20201126:122838.526 **** Enabled features ****
+  1841:20201126:122838.526 IPv6 support:           NO
+  1841:20201126:122838.526 TLS support:           YES
+  1841:20201126:122838.526 **************************
+  1841:20201126:122838.526 using configuration file: /etc/zabbix/zabbix_agentd.conf
+  1841:20201126:122838.526 agent #0 started [main process]
+  1848:20201126:122838.526 agent #5 started [active checks #1]
+  1847:20201126:122838.527 agent #4 started [listener #3]
+  1846:20201126:122838.529 agent #3 started [listener #2]
+  1845:20201126:122838.530 agent #2 started [listener #1]
+  1844:20201126:122838.532 agent #1 started [collector]
+  1841:20201126:124132.687 Got signal [signal:15(SIGTERM),sender_pid:61781,sender_uid:0,reason:0]. Exiting ...
+  1841:20201126:124132.688 Zabbix Agent stopped. Zabbix 5.0.1 (revision c2a0b03480).
+  3111:20201126:124137.473 Starting Zabbix Agent [mikopbx]. Zabbix 5.0.1 (revision c2a0b03480).
+  3111:20201126:124137.473 **** Enabled features ****
+  3111:20201126:124137.473 IPv6 support:           NO
+  3111:20201126:124137.473 TLS support:           YES
+  3111:20201126:124137.473 **************************
+  3111:20201126:124137.473 using configuration file: /etc/zabbix/zabbix_agentd.conf
+  3111:20201126:124137.474 agent #0 started [main process]
+  3116:20201126:124137.474 agent #5 started [active checks #1]
+  3115:20201126:124137.475 agent #4 started [listener #3]
+  3114:20201126:124137.476 agent #3 started [listener #2]
+  3113:20201126:124137.478 agent #2 started [listener #1]
+  3112:20201126:124137.480 agent #1 started [collector]
+  3116:20201126:145547.200 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+  3116:20201126:145647.242 active check configuration update from [172.16.156.181:10051] is working again
+ 41436:20201126:180126.735 Starting Zabbix Agent [mikopbx]. Zabbix 5.0.1 (revision c2a0b03480).
+ 41436:20201126:180126.736 **** Enabled features ****
+ 41436:20201126:180126.736 IPv6 support:           NO
+ 41436:20201126:180126.736 TLS support:           YES
+ 41436:20201126:180126.736 **************************
+ 41436:20201126:180126.736 using configuration file: /storage/usbdisk1/mikopbx/custom_modules/zabbix/zabbix_agentd.conf
+ 41436:20201126:180126.736 agent #0 started [main process]
+ 41441:20201126:180126.736 agent #5 started [active checks #1]
+ 41440:20201126:180126.737 agent #4 started [listener #3]
+ 41439:20201126:180126.738 agent #3 started [listener #2]
+ 41438:20201126:180126.739 agent #2 started [listener #1]
+ 41437:20201126:180126.742 agent #1 started [collector]
+ 41441:20201126:181529.113 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+ 41441:20201126:181629.150 active check configuration update from [172.16.156.181:10051] is working again
+ 41441:20201126:182832.215 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+ 41441:20201126:190451.239 active check configuration update from [172.16.156.181:10051] is working again
+ 41441:20201126:203230.644 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+ 41441:20201126:203330.672 active check configuration update from [172.16.156.181:10051] is working again
+ 41438:20201126:212520.407 Failed to execute command "/etc/zabbix/scripts/asterisk-stats.sh CountActivePeers": Timeout while executing a shell script.
+ 41441:20201127:072605.110 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+ 41441:20201127:091234.245 active check configuration update from [172.16.156.181:10051] is working again
+ 41441:20201127:151512.960 active check configuration update from [172.16.156.181:10051] started to fail (ZBX_TCP_READ() timed out)
+ 41441:20201127:151613.022 active check configuration update from [172.16.156.181:10051] is working again
+ 41438:20201127:174036.001 Failed to execute command "/etc/zabbix/scripts/asterisk-stats.sh countSipPeers": Timeout while executing a shell script.
+ 41439:20201127:174037.731 Failed to execute command "/etc/zabbix/scripts/asterisk-stats.sh sipTrunkDown": Timeout while executing a shell script.
