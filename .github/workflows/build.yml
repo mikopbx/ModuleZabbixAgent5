@@ -1,0 +1,17 @@
+# File: .github/workflows/build.yml
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: mikopbx/.github-workflows/.github/workflows/extension-publish.yml@master
+    secrets:
+      OWNCLOUD_AUTH: ${{ secrets.OWNCLOUD_AUTH }}
+      MIKO_LIC_REST_VENDOR_ID: ${{ secrets.MIKO_LIC_REST_VENDOR_ID }}
+      MIKO_LIC_REST_API_KEY: ${{ secrets.MIKO_LIC_REST_API_KEY }}
+      MIKO_LIC_HOSTNAME: ${{ secrets.MIKO_LIC_HOSTNAME }}
