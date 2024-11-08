@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     uses: mikopbx/.github-workflows/.github/workflows/extension-publish.yml@master
+    with:
+      initial_version: "1.18"
     secrets:
       OWNCLOUD_AUTH: ${{ secrets.OWNCLOUD_AUTH }}
       MIKO_LIC_REST_VENDOR_ID: ${{ secrets.MIKO_LIC_REST_VENDOR_ID }}
