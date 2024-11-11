@@ -7,5 +7,10 @@
   "wiki_links": {
     "ru": {"https://wiki.mikopbx.com/module-zabbix-agent5": "https://docs.mikopbx.com/mikopbx/modules/miko/module-zabbix-agent"},
     "en": {"https://wiki.mikopbx.com/module-zabbix-agent5": "https://docs.mikopbx.com/mikopbx/v/english/modules/miko/module-zabbix-agent"}
+  },
+  "release_settings": {
+    "publish_release": true,
+    "changelog_enabled": true,
+    "create_github_release": true
   }
 }
