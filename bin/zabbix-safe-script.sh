@@ -16,9 +16,9 @@ elif [[ "$arch" == "armv7l" || "$arch" == "armv8" || "$arch" == "aarch64" ]]; th
     # Check if /offload/rootfs/usr/lib/libpcre.so.3 exists, if not create a symlink to libpcre.so.1.2.13
     if [ ! -f /offload/rootfs/usr/lib/libpcre.so.3 ]; then
         echo "Creating symlink for libpcre.so.3..."
-        /bin/mount -o remount,rw /offload/
+        /bin/busybox mount -o remount,rw /offload/
         ln -s /offload/rootfs/usr/lib/libpcre.so.1.2.13 /offload/rootfs/usr/lib/libpcre.so.3
-        /bin/mount -o remount,ro /offload/
+        /bin/busybox mount -o remount,ro /offload/
     fi
     agentBinary="zabbix_agentd_arm"
 else
