@@ -1,0 +1,8 @@
+FROM alpine:latest
+RUN apk add --no-cache build-base wget
+WORKDIR /build
+RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \\
+    tar -xzf zabbix-6.0.0.tar.gz && \\
+    cd zabbix-6.0.0 && \\
+    ./configure --enable-agent --enable-static && \\
+    make LDFLAGS="-static"

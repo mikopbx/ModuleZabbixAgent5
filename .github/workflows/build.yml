@@ -14,47 +14,58 @@ jobs:
       initial_version: "1.18"
       custom_build_steps: |
         cd $GITHUB_WORKSPACE/module
-        
-        # Удаляем существующие бинарные файлы, если они есть
         rm -f bin/zabbix_agentd bin/zabbix_agentd_arm
-  
+        
+        # Set up Docker cache
+        DOCKER_IMAGE_TAG_AMD64="zabbix-agent-builder:amd64"
+        DOCKER_IMAGE_TAG_ARM64="zabbix-agent-builder:arm64"
+        
+        # Cache handling function
+        handle_docker_cache() {
+          local image_name=$1
+          local dockerfile_path=$2
+          local platforms=$3  # linux/amd64,linux/arm64
+          local cache_prefix="$RUNNER_TEMP/docker-cache"
+        
+          # Build for each platform
+          for platform in ${platforms//,/ }; do
+            local arch=${platform#*/}  # Extract arch from platform
+            local cache_file="${cache_prefix}-${image_name// /_}-${arch}.tar"
+            local tagged_image="${image_name}-${arch}"
+        
+            # Try to restore from cache if cache exists and was hit
+            if [ "$CACHE_HIT" = "true" ] && [ -f "$cache_file" ]; then
+              echo "Loading cached image for $platform: $tagged_image"
+              docker load < "$cache_file"
+            else
+              echo "Building image for $platform: $tagged_image"
+              docker buildx build \
+                --platform $platform \
+                --tag $tagged_image \
+                --load \
+                -f "$dockerfile_path" .
+        
+              # Save to cache
+              echo "Caching image for $platform: $tagged_image"
+              docker save $tagged_image > "$cache_file"
+            fi
+          done
+        }
+        
+        # Prepare build environments for multiple architectures
+        handle_docker_cache "DOCKER_IMAGE_TAG_AMD64" ".github/build/zabbix-agent-builder/Dockerfile.amd64" "linux/amd64"
+        handle_docker_cache "DOCKER_IMAGE_TAG_ARM64" ".github/build/zabbix-agent-builder/Dockerfile.arm64" "linux/arm64"
+        
         # Создаем директорию bin, если она не существует
         mkdir -p bin
   
-        # Настраиваем QEMU и Buildx для многоархитектурной сборки
-        echo "Setting up QEMU and Buildx for multi-architecture support"
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-        docker buildx create --use --name multiarch_builder
-  
-        # Сборка Zabbix Agent для x86_64 со статической линковкой
-        echo "Building Zabbix Agent for x86_64 with static linkage"
-        docker buildx build --platform linux/amd64 -t zabbix-agent-builder:amd64 --load - <<EOF
-        FROM alpine:latest
-        RUN apk add --no-cache build-base wget
-        WORKDIR /build
-        RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \\
-            tar -xzf zabbix-6.0.0.tar.gz && \\
-            cd zabbix-6.0.0 && \\
-            ./configure --enable-agent --enable-static && \\
-            make LDFLAGS="-static"
-        EOF
-        docker create --name zabbix_agent_amd64 zabbix-agent-builder:amd64
+        # Сборка Zabbix Agent для amd64 со статической линковкой
+        docker create --name zabbix_agent_amd64 "$DOCKER_IMAGE_TAG_AMD64"
         docker cp zabbix_agent_amd64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd
         docker rm zabbix_agent_amd64
   
         # Сборка Zabbix Agent для arm64 со статической линковкой
-        echo "Building Zabbix Agent for arm64 with static linkage"
-        docker buildx build --platform linux/arm64 -t zabbix-agent-builder:arm64 --load - <<EOF
-        FROM arm64v8/alpine:latest
-        RUN apk add --no-cache build-base wget
-        WORKDIR /build
-        RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \\
-            tar -xzf zabbix-6.0.0.tar.gz && \\
-            cd zabbix-6.0.0 && \\
-            ./configure --enable-agent --enable-static && \\
-            make LDFLAGS="-static"
-        EOF
-        docker create --name zabbix_agent_arm64 zabbix-agent-builder:arm64
+        docker create --name zabbix_agent_arm64 "DOCKER_IMAGE_TAG_ARM64"
         docker cp zabbix_agent_arm64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd_arm
         docker rm zabbix_agent_arm64
 
