@@ -12,10 +12,50 @@ jobs:
     uses: mikopbx/.github-workflows/.github/workflows/extension-publish.yml@master
     with:
       initial_version: "1.18"
-    secrets:
-      MIKO_LIC_REST_VENDOR_ID: ${{ secrets.MIKO_LIC_REST_VENDOR_ID }}
-      MIKO_LIC_REST_API_KEY: ${{ secrets.MIKO_LIC_REST_API_KEY }}
-      MIKO_LIC_HOSTNAME: ${{ secrets.MIKO_LIC_HOSTNAME }}
-      OWNCLOUD_AUTH: ${{ secrets.OWNCLOUD_AUTH }}
-      WEBDAV_ROOT: ${{ secrets.WEBDAV_ROOT }}
-      SHARE_API_URL: ${{ secrets.SHARE_API_URL }}
+    custom_build_steps: |
+      cd $GITHUB_WORKSPACE/module
+      
+      # Удаляем существующие бинарные файлы, если они есть
+      rm -f bin/zabbix_agentd bin/zabbix_agentd_arm
+
+      # Создаем директорию bin, если она не существует
+      mkdir -p bin
+
+      # Настраиваем QEMU и Buildx для многоархитектурной сборки
+      echo "Setting up QEMU and Buildx for multi-architecture support"
+      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      docker buildx create --use --name multiarch_builder
+
+      # Сборка Zabbix Agent для x86_64 со статической линковкой
+      echo "Building Zabbix Agent for x86_64 with static linkage"
+      docker buildx build --platform linux/amd64 -t zabbix-agent-builder:amd64 --load - <<EOF
+      FROM alpine:latest
+      RUN apk add --no-cache build-base wget
+      WORKDIR /build
+      RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \\
+          tar -xzf zabbix-6.0.0.tar.gz && \\
+          cd zabbix-6.0.0 && \\
+          ./configure --enable-agent --enable-static && \\
+          make LDFLAGS="-static"
+      EOF
+      docker create --name zabbix_agent_amd64 zabbix-agent-builder:amd64
+      docker cp zabbix_agent_amd64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd
+      docker rm zabbix_agent_amd64
+
+      # Сборка Zabbix Agent для arm64 со статической линковкой
+      echo "Building Zabbix Agent for arm64 with static linkage"
+      docker buildx build --platform linux/arm64 -t zabbix-agent-builder:arm64 --load - <<EOF
+      FROM arm64v8/alpine:latest
+      RUN apk add --no-cache build-base wget
+      WORKDIR /build
+      RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \\
+          tar -xzf zabbix-6.0.0.tar.gz && \\
+          cd zabbix-6.0.0 && \\
+          ./configure --enable-agent --enable-static && \\
+          make LDFLAGS="-static"
+      EOF
+      docker create --name zabbix_agent_arm64 zabbix-agent-builder:arm64
+      docker cp zabbix_agent_arm64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd_arm
+      docker rm zabbix_agent_arm64
+
+    secrets: inherit
