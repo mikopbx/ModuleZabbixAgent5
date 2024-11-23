@@ -17,8 +17,7 @@ jobs:
         rm -f bin/zabbix_agentd bin/zabbix_agentd_arm
         
         # Set up Docker cache
-        DOCKER_IMAGE_TAG_AMD64="zabbix-agent-builder:amd64"
-        DOCKER_IMAGE_TAG_ARM64="zabbix-agent-builder:arm64"
+        DOCKER_IMAGE_TAG="zabbix-agent-builder"
         
         # Cache handling function
         handle_docker_cache() {
@@ -53,19 +52,19 @@ jobs:
         }
         
         # Prepare build environments for multiple architectures
-        handle_docker_cache "DOCKER_IMAGE_TAG_AMD64" ".github/build/zabbix-agent-builder/Dockerfile.amd64" "linux/amd64"
-        handle_docker_cache "DOCKER_IMAGE_TAG_ARM64" ".github/build/zabbix-agent-builder/Dockerfile.arm64" "linux/arm64"
+        handle_docker_cache "$DOCKER_IMAGE_TAG" ".github/build/zabbix-agent-builder/Dockerfile.amd64" "linux/amd64"
+        handle_docker_cache "$DOCKER_IMAGE_TAG" ".github/build/zabbix-agent-builder/Dockerfile.arm64" "linux/arm64"
         
         # Создаем директорию bin, если она не существует
         mkdir -p bin
   
         # Сборка Zabbix Agent для amd64 со статической линковкой
-        docker create --name zabbix_agent_amd64 "$DOCKER_IMAGE_TAG_AMD64"
+        docker create --name zabbix_agent_amd64 "$DOCKER_IMAGE_TAG"-amd64
         docker cp zabbix_agent_amd64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd
         docker rm zabbix_agent_amd64
   
         # Сборка Zabbix Agent для arm64 со статической линковкой
-        docker create --name zabbix_agent_arm64 "DOCKER_IMAGE_TAG_ARM64"
+        docker create --name zabbix_agent_arm64 "$DOCKER_IMAGE_TAG"-arm64
         docker cp zabbix_agent_arm64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd_arm
         docker rm zabbix_agent_arm64
 
