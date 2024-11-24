@@ -1,4 +1,4 @@
-FROM arm64v8/debian:bullseye-slim
+FROM debian:bullseye-slim
 
 # Устанавливаем необходимые пакеты
 RUN apt-get update && apt-get install -y build-essential wget libssl-dev libpcre3-dev zlib1g-dev && \
