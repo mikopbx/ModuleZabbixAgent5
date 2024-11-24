@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 arm64v8/debian:bullseye-slim
+FROM arm64v8/debian:bullseye-slim
 
 # Zabbix version as build argument for easy updates
 ARG ZABBIX_VERSION=6.0.0
@@ -6,7 +6,7 @@ ARG ZABBIX_VERSION=6.0.0
 # Install required packages in a single layer to minimize image size
 # --no-install-recommends reduces installed packages to only essential ones
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y \
         build-essential \
         wget \
         libssl-dev \
