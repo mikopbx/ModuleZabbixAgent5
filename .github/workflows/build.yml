@@ -54,8 +54,7 @@ jobs:
         handle_docker_cache "$DOCKER_IMAGE_TAG" ".github/build/zabbix-agent-builder/Dockerfile" "linux/arm64,linux/amd64"
         
         # Build zabbix agent for arm64
-      
-        docker create --name zabbix_agent_arm64 "$DOCKER_IMAGE_TAG"-arm64v8
+        docker create --name zabbix_agent_arm64 "$DOCKER_IMAGE_TAG"-arm64
         docker cp zabbix_agent_arm64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd_arm
         docker rm zabbix_agent_arm64
         
