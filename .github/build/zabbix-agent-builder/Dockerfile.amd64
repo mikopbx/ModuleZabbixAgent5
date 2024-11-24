@@ -1,15 +1,12 @@
-FROM alpine:latest
+FROM debian:bullseye-slim
 
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-
-RUN apk update && \
-          apk add --no-cache build-base wget pcre-dev pcre-static openssl-dev openssl-libs-static \
-          libcurl libcurl-static zlib-dev zlib-static libevent-dev libevent-static
+# Устанавливаем необходимые пакеты
+RUN apt-get update && apt-get install -y build-essential wget libssl-dev libpcre3-dev zlib1g-dev && \
+    apt-get clean
 
 WORKDIR /build
 
+# Скачиваем и собираем Zabbix Agent
 RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-6.0.0.tar.gz && \
     tar -xzf zabbix-6.0.0.tar.gz && \
     cd zabbix-6.0.0 && \
