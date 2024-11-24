@@ -1,0 +1,33 @@
+FROM amd64/debian:bullseye-slim
+
+# Zabbix version as build argument for easy updates
+ARG ZABBIX_VERSION=6.0.0
+
+# Install required packages in a single layer to minimize image size
+# --no-install-recommends reduces installed packages to only essential ones
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        wget \
+        libssl-dev \
+        libpcre3-dev \
+        zlib1g-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory for build process
+WORKDIR /build
+
+# Download and compile Zabbix Agent in a single layer:
+# 1. Download source archive
+# 2. Extract it and remove archive to save space
+# 3. Configure with static linking enabled
+# 4. Compile with static flags
+# 5. Strip binary to reduce size
+RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-${ZABBIX_VERSION}.tar.gz && \
+    tar -xzf zabbix-${ZABBIX_VERSION}.tar.gz && \
+    rm zabbix-${ZABBIX_VERSION}.tar.gz && \
+    cd zabbix-${ZABBIX_VERSION} && \
+    ./configure --enable-agent --enable-static && \
+    make LDFLAGS="-static" && \
+    strip src/zabbix_agent/zabbix_agentd

@@ -18,49 +18,44 @@ jobs:
         
         # Set up Docker cache
         DOCKER_IMAGE_TAG="zabbix-agent-builder"
+        CACHE_PREFIX="$RUNNER_TEMP/docker-cache"
+        ZABBIX_VERSION="6.0.0"
         
-        # Cache handling function
-        handle_docker_cache() {
-          local image_name=$1
-          local dockerfile_path=$2
-          local platforms=$3  # linux/amd64,linux/arm64
-          local cache_prefix="$RUNNER_TEMP/docker-cache"
+        # Function to handle Docker cache and build
+        build_and_extract() {
+          local arch=$1
+          local cache_file="${CACHE_PREFIX}-${DOCKER_IMAGE_TAG}-${arch}.tar"
+          local tagged_image="${DOCKER_IMAGE_TAG}-${arch}"
+          local dockerfile=".github/build/zabbix-agent-builder/Dockerfile.${arch}"
+          local container_name="zabbix_agent_${arch}"
+          local output_binary="zabbix_agentd$([ "$arch" = "arm64" ] && echo '_arm' || echo '')"
         
-          # Build for each platform
-          for platform in ${platforms//,/ }; do
-            local arch=${platform#*/}  # Extract arch from platform
-            local cache_file="${cache_prefix}-${image_name// /_}-${arch}.tar"
-            local tagged_image="${image_name}-${arch}"
+          # Try to restore from cache
+          if [ "$CACHE_HIT" = "true" ] && [ -f "$cache_file" ]; then
+            echo "Loading cached image for ${arch}: ${tagged_image}"
+            docker load < "$cache_file"
+          else
+            echo "Building image for ${arch}: ${tagged_image}"
+            docker buildx build \
+              --platform "linux/${arch}" \
+              --tag "$tagged_image" \
+              --load \
+              -f "$dockerfile" .
         
-            # Try to restore from cache if cache exists and was hit
-            if [ "$CACHE_HIT" = "true" ] && [ -f "$cache_file" ]; then
-              echo "Loading cached image for $platform: $tagged_image"
-              docker load < "$cache_file"
-            else
-              echo "Building image for $platform: $tagged_image"
-              docker buildx build \
-                --platform $platform \
-                --tag $tagged_image \
-                --load \
-                -f "$dockerfile_path" .
+            # Save to cache
+            echo "Caching image for ${arch}: ${tagged_image}"
+            docker save "$tagged_image" > "$cache_file"
+          fi
         
-              # Save to cache
-              echo "Caching image for $platform: $tagged_image"
-              docker save $tagged_image > "$cache_file"
-            fi
-          done
+          # Extract binary
+          docker create --name "$container_name" "$tagged_image"
+          docker cp "${container_name}:/build/zabbix-${ZABBIX_VERSION}/src/zabbix_agent/zabbix_agentd" "bin/${output_binary}"
+          docker rm "$container_name"
         }
         
-        handle_docker_cache "$DOCKER_IMAGE_TAG" ".github/build/zabbix-agent-builder/Dockerfile" "linux/arm64,linux/amd64"
-        
-        # Build zabbix agent for arm64
-        docker create --name zabbix_agent_arm64 "$DOCKER_IMAGE_TAG"-arm64
-        docker cp zabbix_agent_arm64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd_arm
-        docker rm zabbix_agent_arm64
-        
-        # Build zabbix agent for amd64
-        docker create --name zabbix_agent_amd64 "$DOCKER_IMAGE_TAG"-amd64
-        docker cp zabbix_agent_amd64:/build/zabbix-6.0.0/src/zabbix_agent/zabbix_agentd bin/zabbix_agentd
-        docker rm zabbix_agent_amd64
+        # Build for both architectures
+        for arch in arm64 amd64; do
+          build_and_extract "$arch"
+        done
 
     secrets: inherit
