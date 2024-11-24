@@ -16,6 +16,10 @@ jobs:
         cd $GITHUB_WORKSPACE/module
         rm -f bin/zabbix_agentd bin/zabbix_agentd_arm
         
+        # Set up Docker buildx and QEMU
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        docker buildx create --use
+        
         # Set up Docker cache
         DOCKER_IMAGE_TAG="zabbix-agent-builder"
         CACHE_PREFIX="$RUNNER_TEMP/docker-cache"
@@ -40,6 +44,7 @@ jobs:
               --platform "linux/${arch}" \
               --tag "$tagged_image" \
               --load \
+              --progress=plain \
               -f "$dockerfile" .
         
             # Save to cache
@@ -48,7 +53,7 @@ jobs:
           fi
         
           # Extract binary
-          docker create --name "$container_name" "$tagged_image"
+          docker create --platform "linux/${arch}" --name "$container_name" "$tagged_image"
           docker cp "${container_name}:/build/zabbix-${ZABBIX_VERSION}/src/zabbix_agent/zabbix_agentd" "bin/${output_binary}"
           docker rm "$container_name"
         }

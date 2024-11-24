@@ -1,3 +1,5 @@
+FROM --platform=linux/arm64 arm64v8/debian:bullseye-slim
+
 # Zabbix version as build argument for easy updates
 ARG ZABBIX_VERSION=6.0.0
 
