@@ -12,10 +12,39 @@ jobs:
     uses: mikopbx/.github-workflows/.github/workflows/extension-publish.yml@master
     with:
       initial_version: "1.18"
-    secrets:
-      MIKO_LIC_REST_VENDOR_ID: ${{ secrets.MIKO_LIC_REST_VENDOR_ID }}
-      MIKO_LIC_REST_API_KEY: ${{ secrets.MIKO_LIC_REST_API_KEY }}
-      MIKO_LIC_HOSTNAME: ${{ secrets.MIKO_LIC_HOSTNAME }}
-      OWNCLOUD_AUTH: ${{ secrets.OWNCLOUD_AUTH }}
-      WEBDAV_ROOT: ${{ secrets.WEBDAV_ROOT }}
-      SHARE_API_URL: ${{ secrets.SHARE_API_URL }}
+      custom_build_steps: |
+        cd $GITHUB_WORKSPACE/module
+        rm -f bin/zabbix_agentd bin/zabbix_agentd_arm
+
+        DOCKER_IMAGE_TAG="zabbix-agent-builder"
+        CACHE_PREFIX="$RUNNER_TEMP/docker-cache"
+        ZABBIX_VERSION="6.0.44"
+        BUILD_DIR=".github/build/zabbix-agent-builder"
+
+        # Build AMD64 binary (native Alpine build)
+        AMD64_IMAGE="${DOCKER_IMAGE_TAG}-amd64"
+        AMD64_CACHE="${CACHE_PREFIX}-${AMD64_IMAGE}.tar"
+        if [ "$CACHE_HIT" = "true" ] && [ -f "$AMD64_CACHE" ]; then
+          docker load < "$AMD64_CACHE"
+        else
+          docker build --tag "$AMD64_IMAGE" --progress=plain -f "${BUILD_DIR}/Dockerfile.amd64" .
+          docker save "$AMD64_IMAGE" > "$AMD64_CACHE"
+        fi
+        docker create --name zabbix_amd64 "$AMD64_IMAGE"
+        docker cp "zabbix_amd64:/build/zabbix-${ZABBIX_VERSION}/src/zabbix_agent/zabbix_agentd" bin/zabbix_agentd
+        docker rm zabbix_amd64
+
+        # Build ARM64 binary (cross-compilation on AMD64, no QEMU)
+        ARM64_IMAGE="${DOCKER_IMAGE_TAG}-arm64"
+        ARM64_CACHE="${CACHE_PREFIX}-${ARM64_IMAGE}.tar"
+        if [ "$CACHE_HIT" = "true" ] && [ -f "$ARM64_CACHE" ]; then
+          docker load < "$ARM64_CACHE"
+        else
+          docker build --tag "$ARM64_IMAGE" --progress=plain -f "${BUILD_DIR}/Dockerfile.arm64" .
+          docker save "$ARM64_IMAGE" > "$ARM64_CACHE"
+        fi
+        docker create --name zabbix_arm64 "$ARM64_IMAGE"
+        docker cp "zabbix_arm64:/build/zabbix-${ZABBIX_VERSION}/src/zabbix_agent/zabbix_agentd" bin/zabbix_agentd_arm
+        docker rm zabbix_arm64
+
+    secrets: inherit

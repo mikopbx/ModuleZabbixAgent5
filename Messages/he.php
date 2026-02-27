@@ -17,10 +17,10 @@ return [
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-    'repModuleZabbixAgent5' => 'Zabbix-agentti 5- %repesentti%',
-    'mo_ModuleModuleZabbixAgent5' => 'Zabbix-agentti 5',
-    'BreadcrumbModuleZabbixAgent5' => 'Zabbix-agentti 5',
-    'SubHeaderModuleZabbixAgent5' => 'MikoPBX:n valvonta Zabbixin kautta',
-    'modzbx_ConfigFileLabel' => 'Agentin määritystiedosto',
-    'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX-valvonta Zabbixin kautta',
+    'repModuleZabbixAgent5' => '',
+    'mo_ModuleModuleZabbixAgent5' => '',
+    'BreadcrumbModuleZabbixAgent5' => '',
+    'SubHeaderModuleZabbixAgent5' => '',
+    'modzbx_ConfigFileLabel' => '',
+    'fw_modulezabbixagent5Description' => '',
 ];

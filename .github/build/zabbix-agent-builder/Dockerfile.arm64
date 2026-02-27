@@ -1,0 +1,61 @@
+FROM amd64/debian:bullseye-slim
+
+# Cross-compilation for ARM64 on AMD64 host (avoids unreliable QEMU emulation)
+
+ARG ZABBIX_VERSION=6.0.44
+ARG OPENSSL_VERSION=1.1.1w
+ARG PCRE_VERSION=8.45
+ARG ZLIB_VERSION=1.3.1
+
+# Install cross-compiler and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc-aarch64-linux-gnu \
+    libc6-dev-arm64-cross \
+    make binutils perl wget ca-certificates file && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+ENV PREFIX=/opt/arm64
+ENV CC=aarch64-linux-gnu-gcc
+ENV AR=aarch64-linux-gnu-ar
+ENV RANLIB=aarch64-linux-gnu-ranlib
+ENV STRIP=aarch64-linux-gnu-strip
+
+# Build zlib for ARM64
+RUN wget https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz && \
+    tar xzf zlib-${ZLIB_VERSION}.tar.gz && rm zlib-${ZLIB_VERSION}.tar.gz && \
+    cd zlib-${ZLIB_VERSION} && \
+    ./configure --prefix=$PREFIX --static && \
+    make -j$(nproc) && make install
+
+# Build PCRE for ARM64
+RUN wget https://sourceforge.net/projects/pcre/files/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz/download -O pcre-${PCRE_VERSION}.tar.gz && \
+    tar xzf pcre-${PCRE_VERSION}.tar.gz && rm pcre-${PCRE_VERSION}.tar.gz && \
+    cd pcre-${PCRE_VERSION} && \
+    ./configure --host=aarch64-linux-gnu --prefix=$PREFIX --disable-shared --enable-static --disable-cpp && \
+    make -j$(nproc) && make install
+
+# Build OpenSSL for ARM64
+RUN wget https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz && \
+    tar xzf openssl-${OPENSSL_VERSION}.tar.gz && rm openssl-${OPENSSL_VERSION}.tar.gz && \
+    cd openssl-${OPENSSL_VERSION} && \
+    ./Configure linux-aarch64 no-shared --prefix=$PREFIX && \
+    make -j$(nproc) && make install_sw
+
+# Build Zabbix Agent for ARM64
+RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-${ZABBIX_VERSION}.tar.gz && \
+    tar xzf zabbix-${ZABBIX_VERSION}.tar.gz && rm zabbix-${ZABBIX_VERSION}.tar.gz && \
+    cd zabbix-${ZABBIX_VERSION} && \
+    ./configure --host=aarch64-linux-gnu --enable-agent \
+        --with-openssl=$PREFIX \
+        --with-libpcre=$PREFIX \
+        LDFLAGS="-static -L$PREFIX/lib" \
+        CFLAGS="-I$PREFIX/include" \
+        LIBS="-lpthread" \
+        AR=aarch64-linux-gnu-ar \
+        RANLIB=aarch64-linux-gnu-ranlib && \
+    make -j$(nproc) && \
+    $STRIP src/zabbix_agent/zabbix_agentd && \
+    file src/zabbix_agent/zabbix_agentd | tee /dev/stderr | grep -q "aarch64" && \
+    echo "OK: ARM64 binary built" || \
+    { echo "FAIL: Not an ARM64 binary"; exit 1; }

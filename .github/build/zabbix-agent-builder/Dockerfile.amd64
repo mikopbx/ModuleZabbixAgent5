@@ -1,0 +1,29 @@
+FROM alpine:3.18
+
+ARG ZABBIX_VERSION=6.0.44
+
+# Install build tools and static libraries
+# Alpine's musl libc is designed for static linking
+RUN apk add --no-cache \
+    build-base \
+    wget \
+    openssl-dev \
+    openssl-libs-static \
+    pcre-dev \
+    zlib-dev \
+    zlib-static \
+    file
+
+WORKDIR /build
+
+# Download, compile, and verify Zabbix Agent with full static linking
+RUN wget https://cdn.zabbix.com/zabbix/sources/stable/6.0/zabbix-${ZABBIX_VERSION}.tar.gz && \
+    tar -xzf zabbix-${ZABBIX_VERSION}.tar.gz && \
+    rm zabbix-${ZABBIX_VERSION}.tar.gz && \
+    cd zabbix-${ZABBIX_VERSION} && \
+    ./configure --enable-agent --with-openssl && \
+    make -j$(nproc) LDFLAGS="-static" && \
+    strip src/zabbix_agent/zabbix_agentd && \
+    file src/zabbix_agent/zabbix_agentd | grep -q "statically linked" && \
+    echo "OK: Binary is statically linked" || \
+    { echo "FAIL: Binary is NOT statically linked"; exit 1; }

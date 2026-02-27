@@ -17,7 +17,7 @@ return [
  * You should have received a copy of the GNU General Public License along with this program.
  * If not, see <https://www.gnu.org/licenses/>.
  */
-    'repModuleZabbixAgent5' => '',
+    'repModuleZabbixAgent5' => 'Zabbix agent 5- %repesent%',
     'mo_ModuleModuleZabbixAgent5' => 'Zabbix ügynök 5',
     'BreadcrumbModuleZabbixAgent5' => 'Zabbix ügynök 5',
     'SubHeaderModuleZabbixAgent5' => 'A MikoPBX felügyelete a Zabbix segítségével',

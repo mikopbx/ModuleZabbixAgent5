@@ -20,3 +20,4 @@ The module outputs various metrics about your MikoPBX system to the configured Z
 * Asterisk version
 
 These metrics can be used to create graphs, alerts, and dashboards in your Zabbix server to monitor the health and performance of your MikoPBX system.  You can leverage the pre-defined Zabbix templates provided to quickly set up basic monitoring for your PBX.  Additionally, you can use the low-level discovery features of Zabbix to automatically discover and monitor new SIP peers and trunks as they are added to your system.
+=======
