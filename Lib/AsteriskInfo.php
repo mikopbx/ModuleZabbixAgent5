@@ -209,10 +209,65 @@ class AsteriskInfo
         echo $ch;
     }
 
+    // Returns Zabbix LLD JSON with discovered SIP trunks
+    public static function discoveryTrunks(): void
+    {
+        $result = [];
+        try {
+            $di = MikoPBXVersion::getDefaultDi();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/sip/getRegistry',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if ($restAnswer->success) {
+                foreach ($restAnswer->data as $peer) {
+                    $id = $peer['id'] ?? ($peer['username'] ?? '');
+                    if ($id === '') {
+                        continue;
+                    }
+                    $result[] = [
+                        '{#TRUNKID}' => $id,
+                        '{#TRUNKNAME}' => $peer['username'] ?? $id,
+                        '{#TRUNKHOST}' => $peer['host'] ?? '',
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Return empty discovery on error
+        }
+        echo json_encode($result);
+    }
+
+    // Returns registration status of a specific SIP trunk by ID
+    public static function trunkStatus(string $trunkId = ''): void
+    {
+        $result = 'UNKNOWN';
+        try {
+            $di = MikoPBXVersion::getDefaultDi();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/sip/getRegistry',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if ($restAnswer->success) {
+                foreach ($restAnswer->data as $peer) {
+                    $id = $peer['id'] ?? ($peer['username'] ?? '');
+                    if ($id === $trunkId) {
+                        $result = $peer['state'] ?? 'UNKNOWN';
+                        break;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Return UNKNOWN on error
+        }
+        echo $result;
+    }
+
 }
 
 // Main logic to call the appropriate function based on the command line argument
 $action = $argv[1] ?? '';
+$args = array_slice($argv ?? [], 2);
 if (method_exists(AsteriskInfo::class, $action)) {
-    AsteriskInfo::$action();
+    AsteriskInfo::$action(...$args);
 }

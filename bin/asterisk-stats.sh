@@ -114,12 +114,25 @@ CountActivePeers(){
     php -f "$PHP_INFO" getCountActivePeers;
 }
 
+# Function to discover SIP trunks (Zabbix LLD)
+discoveryTrunks(){
+    php -f "$PHP_INFO" discoveryTrunks;
+}
+
+# Function to get registration status of a specific trunk
+trunkStatus(){
+    php -f "$PHP_INFO" trunkStatus "$1";
+}
+
 # Execute the function passed as an argument with whitelist validation
 case "$1" in
     status|version|statusReload|statusUptime|callsActive|channelsActive|callsProcessed|\
 sipTrunkDown|countSipPeers|countInCalls|countOutCalls|countInnerCalls|\
-CountActiveProviders|CountNonActiveProviders|CountActivePeers)
+CountActiveProviders|CountNonActiveProviders|CountActivePeers|discoveryTrunks)
         "$1"
+        ;;
+    trunkStatus)
+        trunkStatus "$2"
         ;;
     *)
         echo "ZBX_NOTSUPPORTED"
