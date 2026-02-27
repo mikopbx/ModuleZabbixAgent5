@@ -22,7 +22,7 @@ namespace Modules\ModuleZabbixAgent5\Lib;
 
 // Include necessary classes and exceptions
 use JsonException;
-use Lib\MikoPBXVersion;
+use Modules\ModuleZabbixAgent5\Lib\MikoPBXVersion;
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Common\Providers\PBXCoreRESTClientProvider;
 
