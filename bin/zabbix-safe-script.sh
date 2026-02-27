@@ -10,9 +10,9 @@ confFile="/etc/custom_modules/ModuleZabbixAgent5/zabbix_agentd.conf"
 arch=$(uname -m)
 
 # Set binary name based on architecture
-if [[ "$arch" == "x86_64" || "$arch" == "i386" || "$arch" == "i686" ]]; then
+if [ "$arch" = "x86_64" ] || [ "$arch" = "i386" ] || [ "$arch" = "i686" ]; then
     agentBinary="zabbix_agentd"
-elif [[ "$arch" == "armv7l" || "$arch" == "armv8" || "$arch" == "aarch64" ]]; then
+elif [ "$arch" = "armv7l" ] || [ "$arch" = "armv8" ] || [ "$arch" = "aarch64" ]; then
     agentBinary="zabbix_agentd_arm"
 else
     echo "Unsupported architecture: $arch"

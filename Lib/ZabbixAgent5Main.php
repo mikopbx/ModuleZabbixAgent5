@@ -71,7 +71,10 @@ class ZabbixAgent5Main extends Injectable
         }
 
         if (empty($this->module_settings['configContent'])) {
-            $this->module_settings['configContent'] = file_get_contents($this->dirs['binDir'] . '/zabbix_agentd_default.conf');
+            $defaultConfig = file_get_contents($this->dirs['binDir'] . '/zabbix_agentd_default.conf');
+            if ($defaultConfig !== false) {
+                $this->module_settings['configContent'] = $defaultConfig;
+            }
         }
     }
 
@@ -147,11 +150,32 @@ class ZabbixAgent5Main extends Injectable
     public static function startService(): void
     {
         $main = new ZabbixAgent5Main();
+        if (empty($main->module_settings['configContent'])) {
+            return;
+        }
         $service = self::SERVICE_ZABBIX_AGENT;
         $path = "{$main->dirs['binDir']}/{$service}";
         $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
         file_put_contents($configPath, $main->module_settings['configContent']);
         Processes::processWorker($path, '-c ' . $configPath, $service, 'restart');
+    }
+
+    /**
+     * Handles Beanstalk message processing.
+     *
+     * @param array|null $message The decoded message from Beanstalk queue
+     */
+    public function processBeanstalkMessage(?array $message): void
+    {
+    }
+
+    /**
+     * Handles AMI event processing.
+     *
+     * @param array $parameters AMI event parameters
+     */
+    public function processAmiMessage(array $parameters): void
+    {
     }
 
 }

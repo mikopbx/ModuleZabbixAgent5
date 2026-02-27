@@ -7,6 +7,8 @@ const ModuleZabbixAgent5 = {
 	$moduleStatus: $('#status'),
 	// Ace editor instance
 	editor: '',
+	// Form validation rules
+	validateRules: {},
 	/**
 	 * On page load we init some Semantic UI library
 	 */

@@ -36,7 +36,7 @@ class AsteriskInfo
     // Define constants for call directions and maximum length of numbers
     public const INNER_CALL = 0;
     public const IN_CALL = 1;
-    public const OUT_CALL = 1;
+    public const OUT_CALL = 2;
     public const MAX_LEN_NUM = 6;
 
     // Counts the total number of active calls and outputs the count
@@ -121,28 +121,36 @@ class AsteriskInfo
     // Counts the number of SIP extensions and outputs the count
     public static function getCountSipPeers(): void
     {
-        $extensions = Extensions::find("type='SIP'")->toArray();
-        echo count($extensions);
+        try {
+            $extensions = Extensions::find("type='SIP'")->toArray();
+            echo count($extensions);
+        } catch (\Throwable $e) {
+            echo 0;
+        }
     }
 
     // Counts the number of active SIP peers and outputs the count
     public static function getCountActivePeers(): void
     {
         $ch = 0;
-        // Get user data from the API
-        $di = MikoPBXVersion::getDefaultDi();
-        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-            '/pbxcore/api/sip/getPeersStatuses',
-            PBXCoreRESTClientProvider::HTTP_METHOD_GET
-        ]);
-        if (!$restAnswer->success){
-            return;
-        }
-        $peers = $restAnswer->data;
-        foreach ($peers as $peer) {
-            if ("OK" === $peer['state'] && is_numeric($peer['id'])) {
-                $ch++;
+        try {
+            $di = MikoPBXVersion::getDefaultDi();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/sip/getPeersStatuses',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if (!$restAnswer->success){
+                echo $ch;
+                return;
             }
+            $peers = $restAnswer->data;
+            foreach ($peers as $peer) {
+                if ("OK" === ($peer['state'] ?? '') && is_numeric($peer['id'] ?? '')) {
+                    $ch++;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }
@@ -151,22 +159,25 @@ class AsteriskInfo
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
-
-        // Get user data from the API
-        $di = MikoPBXVersion::getDefaultDi();
-        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-            '/pbxcore/api/sip/getRegistry',
-            PBXCoreRESTClientProvider::HTTP_METHOD_GET
-        ]);
-        if (!$restAnswer->success){
-            return;
-        }
-
-        $peers = $restAnswer->data;
-        foreach ($peers as $peer) {
-            if ("OK" === $peer['state'] || 'REGISTERED' === $peer['state']) {
-                $ch++;
+        try {
+            $di = MikoPBXVersion::getDefaultDi();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/sip/getRegistry',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if (!$restAnswer->success){
+                echo $ch;
+                return;
             }
+            $peers = $restAnswer->data;
+            foreach ($peers as $peer) {
+                $state = $peer['state'] ?? '';
+                if ("OK" === $state || 'REGISTERED' === $state) {
+                    $ch++;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }
@@ -175,20 +186,25 @@ class AsteriskInfo
     public static function getCountNonActiveProviders(): void
     {
         $ch = 0;
-        // Get user data from the API
-        $di = MikoPBXVersion::getDefaultDi();
-        $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-            '/pbxcore/api/sip/getRegistry',
-            PBXCoreRESTClientProvider::HTTP_METHOD_GET
-        ]);
-        if (!$restAnswer->success){
-            return;
-        }
-        $peers = $restAnswer->data;
-        foreach ($peers as $peer) {
-            if ("OK" !== $peer['state'] && 'REGISTERED' !== $peer['state'] && 'OFF' !== $peer['state']) {
-                $ch++;
+        try {
+            $di = MikoPBXVersion::getDefaultDi();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                '/pbxcore/api/sip/getRegistry',
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            if (!$restAnswer->success){
+                echo $ch;
+                return;
             }
+            $peers = $restAnswer->data;
+            foreach ($peers as $peer) {
+                $state = $peer['state'] ?? '';
+                if ("OK" !== $state && 'REGISTERED' !== $state && 'OFF' !== $state) {
+                    $ch++;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }

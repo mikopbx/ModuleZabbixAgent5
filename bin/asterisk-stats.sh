@@ -93,7 +93,7 @@ countOutCalls(){
 # Function to count internal calls
 countInnerCalls(){
     # Call the PHP script to count internal calls
-    php -f "$PHP_INFO" countOutCalls;
+    php -f "$PHP_INFO" countInnerCalls;
 }
 
 # Function to count active SIP providers
@@ -114,5 +114,15 @@ CountActivePeers(){
     php -f "$PHP_INFO" getCountActivePeers;
 }
 
-# Execute the function passed as an argument
-$1
+# Execute the function passed as an argument with whitelist validation
+case "$1" in
+    status|version|statusReload|statusUptime|callsActive|channelsActive|callsProcessed|\
+sipTrunkDown|countSipPeers|countInCalls|countOutCalls|countInnerCalls|\
+CountActiveProviders|CountNonActiveProviders|CountActivePeers)
+        "$1"
+        ;;
+    *)
+        echo "ZBX_NOTSUPPORTED"
+        exit 1
+        ;;
+esac
