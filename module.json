@@ -3,7 +3,7 @@
   "moduleUniqueID":"ModuleZabbixAgent5",
   "support_email": "help@miko.ru",
   "version": "%ModuleVersion%",
-  "min_pbx_version": "2024.1.22",
+  "min_pbx_version": "2025.1.1",
   "wiki_links": {
     "ru": {"https://wiki.mikopbx.com/module-zabbix-agent5": "https://docs.mikopbx.com/mikopbx/modules/miko/module-zabbix-agent"},
     "en": {"https://wiki.mikopbx.com/module-zabbix-agent5": "https://docs.mikopbx.com/mikopbx/v/english/modules/miko/module-zabbix-agent"}

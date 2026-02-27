@@ -1,5 +1,4 @@
 <?php
-
 /*
  * MikoPBX - free phone system for small business
  * Copyright © 2017-2024 Alexey Portnov and Nikolay Beketov
@@ -19,84 +18,39 @@
  */
 namespace Modules\ModuleZabbixAgent5\Lib;
 
-use MikoPBX\Common\Models\PbxSettings;
-
+/**
+ * Phalcon 5 compatibility helper.
+ * Since min PBX version is 2025.1.1+, only Phalcon 5 classes are used.
+ */
 class MikoPBXVersion
 {
-    /**
-     * Return true if current version of PBX based on Phalcon 5+
-     * @return bool
-     */
     public static function isPhalcon5Version(): bool
     {
-        $pbxVersion = PbxSettings::getValueByKey('PBXVersion');
-        return version_compare($pbxVersion, '2024.2.30', '>');
+        return true;
     }
 
-    /**
-     * Return Di interface for the current version of PBX
-     * @return \Phalcon\Di\DiInterface|null
-     */
-    public static function getDefaultDi()
+    public static function getDefaultDi(): ?\Phalcon\Di\DiInterface
     {
-        if (self::isPhalcon5Version()) {
-            return  \Phalcon\Di\Di::getDefault();
-        } else {
-            return  \Phalcon\Di::getDefault();
-        }
+        return \Phalcon\Di\Di::getDefault();
     }
 
-    /**
-     * Return Validation class for the current version of PBX
-     * @return class-string<\Phalcon\Filter\Validation>|class-string<\Phalcon\Validation>
-     */
     public static function getValidationClass(): string
     {
-        if (self::isPhalcon5Version()) {
-            return  \Phalcon\Filter\Validation::class;
-        } else {
-            return  \Phalcon\Validation::class;
-        }
+        return \Phalcon\Filter\Validation::class;
     }
 
-    /**
-     * Return Uniqueness class for the current version of PBX
-     * @return class-string<\Phalcon\Filter\Validation\Validator\Uniqueness>|class-string<\Phalcon\Validation\Validator\Uniqueness>
-     */
     public static function getUniquenessClass(): string
     {
-        if (self::isPhalcon5Version()) {
-            return  \Phalcon\Filter\Validation\Validator\Uniqueness::class;
-        } else {
-            return  \Phalcon\Validation\Validator\Uniqueness::class;
-        }
+        return \Phalcon\Filter\Validation\Validator\Uniqueness::class;
     }
 
-    /**
-     * Return Text class for the current version of PBX
-     *
-     * @return class-string<\MikoPBX\Common\Library\Text>|class-string<\Phalcon\Text>
-     */
     public static function getTextClass(): string
     {
-        if (self::isPhalcon5Version()) {
-            return   \MikoPBX\Common\Library\Text::class;
-        } else {
-            return  \Phalcon\Text::class;
-        }
+        return \MikoPBX\Common\Library\Text::class;
     }
 
-    /**
-     * Return Logger class for the current version of PBX
-     *
-     * @return class-string<\Phalcon\Logger\Logger>|class-string<\Phalcon\Logger>
-     */
     public static function getLoggerClass(): string
     {
-        if (self::isPhalcon5Version()) {
-            return  \Phalcon\Logger\Logger::class;
-        } else {
-            return  \Phalcon\Logger::class;
-        }
+        return \Phalcon\Logger\Logger::class;
     }
 }

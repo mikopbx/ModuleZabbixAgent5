@@ -17,61 +17,93 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Define the namespace for this class
 namespace Modules\ModuleZabbixAgent5\Lib;
 
-// Include necessary classes and exceptions
-use JsonException;
-use Modules\ModuleZabbixAgent5\Lib\MikoPBXVersion;
-use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Common\Providers\PBXCoreRESTClientProvider;
 
-
-// Include global variables and functions
 require_once 'Globals.php';
 
-// Class to gather and process Asterisk information
 class AsteriskInfo
 {
-    // Define constants for call directions and maximum length of numbers
     public const INNER_CALL = 0;
     public const IN_CALL = 1;
     public const OUT_CALL = 2;
     public const MAX_LEN_NUM = 6;
 
-    // Counts the total number of active calls and outputs the count
+    /**
+     * Calls REST API v3 endpoint and returns parsed data.
+     * Handles output buffering (suppresses REST client error output)
+     * and v3 response envelope unwrapping.
+     */
+    private static function callApi(string $path): ?array
+    {
+        try {
+            ob_start();
+            $di = \Phalcon\Di\Di::getDefault();
+            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
+                $path,
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+            ]);
+            ob_end_clean();
+            if (!$restAnswer->success) {
+                return null;
+            }
+            $data = $restAnswer->data;
+            if (is_string($data)) {
+                $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
+            }
+            // Handle v3 API envelope {result, data, ...}
+            if (is_array($data) && array_key_exists('result', $data)) {
+                return $data['result'] ? ($data['data'] ?? []) : null;
+            }
+            return is_array($data) ? $data : null;
+        } catch (\Throwable $e) {
+            if (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves all provider statuses (SIP + IAX) from v3 API.
+     * Returns flat array of provider objects.
+     */
+    private static function getAllProviderStatuses(): array
+    {
+        $data = self::callApi('/pbxcore/api/v3/sip-providers:getStatuses');
+        if ($data === null) {
+            return [];
+        }
+        $providers = [];
+        foreach (['sip', 'iax'] as $type) {
+            if (isset($data[$type]) && is_array($data[$type])) {
+                foreach ($data[$type] as $provider) {
+                    $providers[] = $provider;
+                }
+            }
+        }
+        return $providers;
+    }
+
+    // Counts the total number of active calls
     public static function countCalls(): void
     {
         echo count(self::getActiveCalls());
     }
 
-    // Retrieves active calls from the CDR (Call Detail Record) database
+    // Retrieves active calls from the PBX status API
     public static function getActiveCalls(): array
     {
-        try {
-            // Get user data from the API
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/cdr/getActiveCalls',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if (!$restAnswer->success){
-                return [];
-            }
-            $result = json_decode($restAnswer->data, true, 512, JSON_THROW_ON_ERROR)??[];
-        } catch (JsonException $e) {
-            // In case of JSON decoding error, return an empty array
-            $result = [];
-        }
-        return $result;
+        $data = self::callApi('/pbxcore/api/v3/pbx-status:getActiveCalls');
+        return is_array($data) ? $data : [];
     }
 
-    // Counts the number of incoming calls and outputs the count
+    // Counts the number of incoming calls
     public static function countInCalls(): void
     {
         $ch = 0;
-        $calls = self::getActiveCalls();
-        foreach ($calls as $row) {
+        foreach (self::getActiveCalls() as $row) {
             if (self::IN_CALL === self::getCallDirection($row)) {
                 $ch++;
             }
@@ -83,21 +115,20 @@ class AsteriskInfo
     public static function getCallDirection(array $row): int
     {
         $result = self::OUT_CALL;
-        if (strlen($row['src_num']) < self::MAX_LEN_NUM
-            && strlen($row['dst_num']) < self::MAX_LEN_NUM) {
+        if (strlen($row['src_num'] ?? '') < self::MAX_LEN_NUM
+            && strlen($row['dst_num'] ?? '') < self::MAX_LEN_NUM) {
             $result = self::INNER_CALL;
-        } elseif (strlen($row['src_num']) >= self::MAX_LEN_NUM) {
+        } elseif (strlen($row['src_num'] ?? '') >= self::MAX_LEN_NUM) {
             $result = self::IN_CALL;
         }
         return $result;
     }
 
-    // Counts the number of outgoing calls and outputs the count
+    // Counts the number of outgoing calls
     public static function countOutCalls(): void
     {
         $ch = 0;
-        $calls = self::getActiveCalls();
-        foreach ($calls as $row) {
+        foreach (self::getActiveCalls() as $row) {
             if (self::OUT_CALL === self::getCallDirection($row)) {
                 $ch++;
             }
@@ -105,12 +136,11 @@ class AsteriskInfo
         echo $ch;
     }
 
-    // Counts the number of internal calls and outputs the count
+    // Counts the number of internal calls
     public static function countInnerCalls(): void
     {
         $ch = 0;
-        $calls = self::getActiveCalls();
-        foreach ($calls as $row) {
+        foreach (self::getActiveCalls() as $row) {
             if (self::INNER_CALL === self::getCallDirection($row)) {
                 $ch++;
             }
@@ -118,147 +148,81 @@ class AsteriskInfo
         echo $ch;
     }
 
-    // Counts the number of SIP extensions and outputs the count
+    // Counts total SIP extensions via v3 API
     public static function getCountSipPeers(): void
     {
-        try {
-            $extensions = Extensions::find("type='SIP'")->toArray();
-            echo count($extensions);
-        } catch (\Throwable $e) {
-            echo 0;
-        }
+        $data = self::callApi('/pbxcore/api/v3/sip:getStatuses');
+        echo ($data !== null) ? count($data) : 0;
     }
 
-    // Counts the number of active SIP peers and outputs the count
+    // Counts active (online) SIP peers
     public static function getCountActivePeers(): void
     {
         $ch = 0;
-        try {
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/sip/getPeersStatuses',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if (!$restAnswer->success){
-                echo $ch;
-                return;
-            }
-            $peers = $restAnswer->data;
-            foreach ($peers as $peer) {
-                if ("OK" === ($peer['state'] ?? '') && is_numeric($peer['id'] ?? '')) {
+        $data = self::callApi('/pbxcore/api/v3/sip:getStatuses');
+        if ($data !== null) {
+            foreach ($data as $peer) {
+                if (($peer['status'] ?? '') === 'OK') {
                     $ch++;
                 }
             }
-        } catch (\Throwable $e) {
-            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }
 
-    // Counts the number of active providers (registrations) and outputs the count
+    // Counts active providers (state OK or REGISTERED)
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
-        try {
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/sip/getRegistry',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if (!$restAnswer->success){
-                echo $ch;
-                return;
+        foreach (self::getAllProviderStatuses() as $provider) {
+            $state = $provider['state'] ?? '';
+            if ($state === 'OK' || $state === 'REGISTERED') {
+                $ch++;
             }
-            $peers = $restAnswer->data;
-            foreach ($peers as $peer) {
-                $state = $peer['state'] ?? '';
-                if ("OK" === $state || 'REGISTERED' === $state) {
-                    $ch++;
-                }
-            }
-        } catch (\Throwable $e) {
-            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }
 
-    // Counts the number of non-active providers (failed or unregistered) and outputs the count
+    // Counts non-active providers (failed or unregistered, excludes disabled)
     public static function getCountNonActiveProviders(): void
     {
         $ch = 0;
-        try {
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/sip/getRegistry',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if (!$restAnswer->success){
-                echo $ch;
-                return;
+        foreach (self::getAllProviderStatuses() as $provider) {
+            $state = $provider['state'] ?? '';
+            if ($state !== 'OK' && $state !== 'REGISTERED' && $state !== 'OFF') {
+                $ch++;
             }
-            $peers = $restAnswer->data;
-            foreach ($peers as $peer) {
-                $state = $peer['state'] ?? '';
-                if ("OK" !== $state && 'REGISTERED' !== $state && 'OFF' !== $state) {
-                    $ch++;
-                }
-            }
-        } catch (\Throwable $e) {
-            // Return 0 to avoid ZBX_NOTSUPPORTED
         }
         echo $ch;
     }
 
-    // Returns Zabbix LLD JSON with discovered SIP trunks
+    // Returns Zabbix LLD JSON with discovered providers (SIP + IAX)
     public static function discoveryTrunks(): void
     {
         $result = [];
-        try {
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/sip/getRegistry',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if ($restAnswer->success) {
-                foreach ($restAnswer->data as $peer) {
-                    $id = $peer['id'] ?? ($peer['username'] ?? '');
-                    if ($id === '') {
-                        continue;
-                    }
-                    $result[] = [
-                        '{#TRUNKID}' => $id,
-                        '{#TRUNKNAME}' => $peer['username'] ?? $id,
-                        '{#TRUNKHOST}' => $peer['host'] ?? '',
-                    ];
-                }
+        foreach (self::getAllProviderStatuses() as $provider) {
+            $id = $provider['id'] ?? '';
+            if ($id === '') {
+                continue;
             }
-        } catch (\Throwable $e) {
-            // Return empty discovery on error
+            $result[] = [
+                '{#TRUNKID}' => $id,
+                '{#TRUNKNAME}' => $provider['description'] ?? ($provider['username'] ?? $id),
+                '{#TRUNKHOST}' => $provider['host'] ?? '',
+            ];
         }
         echo json_encode($result);
     }
 
-    // Returns registration status of a specific SIP trunk by ID
+    // Returns status of a specific provider by ID
     public static function trunkStatus(string $trunkId = ''): void
     {
         $result = 'UNKNOWN';
-        try {
-            $di = MikoPBXVersion::getDefaultDi();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                '/pbxcore/api/sip/getRegistry',
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
-            ]);
-            if ($restAnswer->success) {
-                foreach ($restAnswer->data as $peer) {
-                    $id = $peer['id'] ?? ($peer['username'] ?? '');
-                    if ($id === $trunkId) {
-                        $result = $peer['state'] ?? 'UNKNOWN';
-                        break;
-                    }
-                }
+        foreach (self::getAllProviderStatuses() as $provider) {
+            if (($provider['id'] ?? '') === $trunkId) {
+                $result = $provider['state'] ?? 'UNKNOWN';
+                break;
             }
-        } catch (\Throwable $e) {
-            // Return UNKNOWN on error
         }
         echo $result;
     }
