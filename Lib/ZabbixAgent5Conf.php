@@ -57,7 +57,7 @@ class ZabbixAgent5Conf extends ConfigClass
     public function modelsEventChangeData($data): void
     {
         if ($data['model'] === ModuleZabbixAgent5::class) {
-            ZabbixAgent5Main::startService();
+            ZabbixAgent5Main::restartService();
         }
     }
 

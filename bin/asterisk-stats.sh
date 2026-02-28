@@ -7,7 +7,7 @@ PHP_INFO="$(dirname "$0")/../Lib/AsteriskInfo.php";
 # Function to check if Asterisk is running
 status(){
   # Use busybox to check for Asterisk's process
-  pidData=$(/bin/busybox ps | /bin/busybox grep '/usr/sbin/asterisk -f' | /bin/busybox grep -v grep);
+  pidData=$(/bin/busybox ps | /bin/busybox grep '/usr/sbin/asterisk' | /bin/busybox grep -v grep);
   # If no process is found, return 0, otherwise return 1
   if [ "${pidData}x" = "x" ]; then
     echo 0

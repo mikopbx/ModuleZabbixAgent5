@@ -145,9 +145,27 @@ class ZabbixAgent5Main extends Injectable
     }
 
     /**
-     * Starts the Zabbix agent service.
+     * Starts the Zabbix agent if not already running.
+     * Uses 'start' action so a second call is a no-op when the agent is already up.
      */
     public static function startService(): void
+    {
+        $main = new ZabbixAgent5Main();
+        if (empty($main->module_settings['configContent'])) {
+            return;
+        }
+        $service = self::SERVICE_ZABBIX_AGENT;
+        $path = "{$main->dirs['binDir']}/{$service}";
+        $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
+        file_put_contents($configPath, $main->module_settings['configContent']);
+        Processes::processWorker($path, '-c ' . $configPath, $service, 'start');
+    }
+
+    /**
+     * Restarts the Zabbix agent (kills existing, starts new).
+     * Used when configuration has changed and the agent must reload.
+     */
+    public static function restartService(): void
     {
         $main = new ZabbixAgent5Main();
         if (empty($main->module_settings['configContent'])) {
