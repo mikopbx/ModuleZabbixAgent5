@@ -170,12 +170,12 @@ class AsteriskInfo
         echo $ch;
     }
 
-    // Counts active providers (state OK or REGISTERED)
+    // Counts active providers (state OK or REGISTERED, case-insensitive)
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
         foreach (self::getAllProviderStatuses() as $provider) {
-            $state = $provider['state'] ?? '';
+            $state = strtoupper($provider['state'] ?? '');
             if ($state === 'OK' || $state === 'REGISTERED') {
                 $ch++;
             }
@@ -188,7 +188,7 @@ class AsteriskInfo
     {
         $ch = 0;
         foreach (self::getAllProviderStatuses() as $provider) {
-            $state = $provider['state'] ?? '';
+            $state = strtoupper($provider['state'] ?? '');
             if ($state !== 'OK' && $state !== 'REGISTERED' && $state !== 'OFF') {
                 $ch++;
             }
