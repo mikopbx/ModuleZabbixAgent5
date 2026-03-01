@@ -113,12 +113,79 @@ zabbix_export:
               trends: '0'
               value_type: CHAR
               description: 'Registration status of SIP trunk {#TRUNKNAME} ({#TRUNKHOST}).'
+            - uuid: a2d3e4f5b6c7d8e9f0a1b2c3d4e5f6a7
+              name: 'Trunk {#TRUNKNAME}: Incoming calls per hour'
+              key: 'asterisk[trunkCalls,{#TRUNKID},hour,incoming,totalCalls]'
+              delay: 5m
+              history: 90d
+              units: calls
+              description: 'Total incoming calls through trunk {#TRUNKNAME} in the last hour.'
+            - uuid: b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8
+              name: 'Trunk {#TRUNKNAME}: Outgoing calls per hour'
+              key: 'asterisk[trunkCalls,{#TRUNKID},hour,outgoing,totalCalls]'
+              delay: 5m
+              history: 90d
+              units: calls
+              description: 'Total outgoing calls through trunk {#TRUNKNAME} in the last hour.'
+            - uuid: c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9
+              name: 'Trunk {#TRUNKNAME}: Incoming calls per day'
+              key: 'asterisk[trunkCalls,{#TRUNKID},day,incoming,totalCalls]'
+              delay: 15m
+              history: 365d
+              units: calls
+              description: 'Total incoming calls through trunk {#TRUNKNAME} in the last 24 hours.'
+            - uuid: d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0
+              name: 'Trunk {#TRUNKNAME}: Outgoing calls per day'
+              key: 'asterisk[trunkCalls,{#TRUNKID},day,outgoing,totalCalls]'
+              delay: 15m
+              history: 365d
+              units: calls
+              description: 'Total outgoing calls through trunk {#TRUNKNAME} in the last 24 hours.'
+            - uuid: e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1
+              name: 'Trunk {#TRUNKNAME}: Answered incoming per hour'
+              key: 'asterisk[trunkCalls,{#TRUNKID},hour,incoming,answeredCalls]'
+              delay: 5m
+              history: 90d
+              units: calls
+              description: 'Answered incoming calls through trunk {#TRUNKNAME} in the last hour.'
+            - uuid: f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2
+              name: 'Trunk {#TRUNKNAME}: Answered outgoing per hour'
+              key: 'asterisk[trunkCalls,{#TRUNKID},hour,outgoing,answeredCalls]'
+              delay: 5m
+              history: 90d
+              units: calls
+              description: 'Answered outgoing calls through trunk {#TRUNKNAME} in the last hour.'
           trigger_prototypes:
             - uuid: c6465555b2574d609844c60dd7678092
               expression: 'last(/MikoPBX monitoring/asterisk[trunkStatus,{#TRUNKID}])<>"OK" and last(/MikoPBX monitoring/asterisk[trunkStatus,{#TRUNKID}])<>"REGISTERED" and last(/MikoPBX monitoring/asterisk[trunkStatus,{#TRUNKID}])<>"OFF"'
               name: 'Trunk {#TRUNKNAME}: not registered ({ITEM.LASTVALUE})'
               priority: AVERAGE
               description: 'SIP trunk {#TRUNKNAME} ({#TRUNKHOST}) is not registered. Current state: {ITEM.LASTVALUE}.'
+          graph_prototypes:
+            - uuid: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+              name: 'Trunk {#TRUNKNAME}: Calls per hour'
+              graph_items:
+                - color: 00AA00
+                  item:
+                    host: 'MikoPBX monitoring'
+                    key: 'asterisk[trunkCalls,{#TRUNKID},hour,incoming,totalCalls]'
+                - sortorder: '1'
+                  color: 0000CC
+                  item:
+                    host: 'MikoPBX monitoring'
+                    key: 'asterisk[trunkCalls,{#TRUNKID},hour,outgoing,totalCalls]'
+                - sortorder: '2'
+                  color: 00CC00
+                  drawtype: DASHED_LINE
+                  item:
+                    host: 'MikoPBX monitoring'
+                    key: 'asterisk[trunkCalls,{#TRUNKID},hour,incoming,answeredCalls]'
+                - sortorder: '3'
+                  color: 0000FF
+                  drawtype: DASHED_LINE
+                  item:
+                    host: 'MikoPBX monitoring'
+                    key: 'asterisk[trunkCalls,{#TRUNKID},hour,outgoing,answeredCalls]'
   triggers:
     - uuid: ea87bcbc59324c4590db73acdcaf1739
       expression: 'last(/MikoPBX monitoring/asterisk[status])=0'

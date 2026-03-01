@@ -124,6 +124,12 @@ trunkStatus(){
     php -f "$PHP_INFO" trunkStatus "$1";
 }
 
+# Function to get CDR call statistics for a specific trunk
+# Args: trunkId period direction metric
+trunkCalls(){
+    php -f "$PHP_INFO" trunkCalls "$1" "$2" "$3" "$4";
+}
+
 # Execute the function passed as an argument with whitelist validation
 case "$1" in
     status|version|statusReload|statusUptime|callsActive|channelsActive|callsProcessed|\
@@ -133,6 +139,9 @@ CountActiveProviders|CountNonActiveProviders|CountActivePeers|discoveryTrunks)
         ;;
     trunkStatus)
         trunkStatus "$2"
+        ;;
+    trunkCalls)
+        trunkCalls "$2" "$3" "$4" "$5"
         ;;
     *)
         echo "ZBX_NOTSUPPORTED"

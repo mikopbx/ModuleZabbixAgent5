@@ -35,14 +35,15 @@ class AsteriskInfo
      * Handles output buffering (suppresses REST client error output)
      * and v3 response envelope unwrapping.
      */
-    private static function callApi(string $path): ?array
+    private static function callApi(string $path, array $params = []): ?array
     {
         try {
             ob_start();
             $di = \Phalcon\Di\Di::getDefault();
             $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
                 $path,
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET
+                PBXCoreRESTClientProvider::HTTP_METHOD_GET,
+                $params
             ]);
             ob_end_clean();
             if (!$restAnswer->success) {
@@ -214,15 +215,63 @@ class AsteriskInfo
         echo json_encode($result);
     }
 
-    // Returns status of a specific provider by ID
+    // Returns status of a specific provider by ID (uppercase for Zabbix trigger compatibility)
     public static function trunkStatus(string $trunkId = ''): void
     {
         $result = 'UNKNOWN';
         foreach (self::getAllProviderStatuses() as $provider) {
             if (($provider['id'] ?? '') === $trunkId) {
-                $result = $provider['state'] ?? 'UNKNOWN';
+                $result = strtoupper($provider['state'] ?? 'UNKNOWN');
                 break;
             }
+        }
+        echo $result;
+    }
+
+    /**
+     * Returns CDR statistics for a specific trunk via cdr:getStatsByProvider API.
+     *
+     * @param string $trunkId  Provider ID (e.g. SIP-PROVIDER-AAA...)
+     * @param string $period   'hour' or 'day'
+     * @param string $direction 'incoming', 'outgoing', or 'all'
+     * @param string $metric   'totalCalls', 'answeredCalls', 'totalDuration', 'totalBillsec'
+     */
+    public static function trunkCalls(
+        string $trunkId = '',
+        string $period = 'hour',
+        string $direction = 'incoming',
+        string $metric = 'totalCalls'
+    ): void {
+        if ($trunkId === '') {
+            echo 0;
+            return;
+        }
+
+        $now = new \DateTime();
+        $dateTo = $now->format('Y-m-d H:i:s');
+        $interval = $period === 'day' ? 'PT24H' : 'PT1H';
+        $dateFrom = (clone $now)->sub(new \DateInterval($interval))->format('Y-m-d H:i:s');
+
+        $data = self::callApi('/pbxcore/api/v3/cdr:getStatsByProvider', [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'provider' => $trunkId,
+        ]);
+        if (!is_array($data)) {
+            echo 0;
+            return;
+        }
+
+        $result = 0;
+        $validMetrics = ['totalCalls', 'answeredCalls', 'totalDuration', 'totalBillsec'];
+        if (!in_array($metric, $validMetrics, true)) {
+            $metric = 'totalCalls';
+        }
+        foreach ($data as $row) {
+            if ($direction !== 'all' && ($row['direction'] ?? '') !== $direction) {
+                continue;
+            }
+            $result += (int)($row[$metric] ?? 0);
         }
         echo $result;
     }
