@@ -22,7 +22,7 @@ const ZabbixAgentStatusWorker = {
 
 	worker() {
 		$.api({
-			url: `${globalRootUrl}pbxcore/api/modules/ModuleZabbixAgent5/status`,
+			url: `${globalRootUrl}pbxcore/api/v3/module-zabbix-agent5/status:getStatus`,
 			on: 'now',
 			successTest(response) {
 				return response !== undefined && response.result === true;

@@ -62,29 +62,10 @@ const ModuleZabbixAgent5 = {
 		});
 	},
 	/**
-	 * Downloads the Zabbix template YAML file via the module REST API.
+	 * Downloads the Zabbix template YAML file via the module REST API (fpassthru streaming).
 	 */
 	downloadTemplate() {
-		$.api({
-			url: `${globalRootUrl}pbxcore/api/modules/ModuleZabbixAgent5/download-template`,
-			on: 'now',
-			successTest(response) {
-				return response !== undefined && response.result === true;
-			},
-			onSuccess(response) {
-				const blob = new Blob([response.data.content], { type: 'application/x-yaml' });
-				const link = document.createElement('a');
-				link.href = URL.createObjectURL(blob);
-				link.download = response.data.filename || 'zbx_mikopbx_template.yaml';
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				URL.revokeObjectURL(link.href);
-			},
-			onFailure() {
-				UserMessage.showMultiString(globalTranslate.modzbx_DownloadTemplate + ': error');
-			},
-		});
+		window.location.href = `${globalRootUrl}pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate`;
 	},
 	/**
 	 * Callback function to be called before the form is sent
