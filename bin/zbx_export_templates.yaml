@@ -97,6 +97,35 @@ zabbix_export:
           trends: '0'
           value_type: CHAR
           description: 'Asterisk version string.'
+        - uuid: a1b2c3d4e5f60001000000000000f001
+          name: 'MikoPBX: Storage total size'
+          key: 'vfs.fs.size[/storage,total]'
+          delay: 5m
+          history: 90d
+          units: B
+          description: 'Total size of /storage filesystem.'
+        - uuid: a1b2c3d4e5f60001000000000000f002
+          name: 'MikoPBX: Storage used space'
+          key: 'vfs.fs.size[/storage,used]'
+          delay: 5m
+          history: 90d
+          units: B
+          description: 'Used space on /storage filesystem.'
+        - uuid: a1b2c3d4e5f60001000000000000f003
+          name: 'MikoPBX: Storage free space'
+          key: 'vfs.fs.size[/storage,free]'
+          delay: 5m
+          history: 90d
+          units: B
+          description: 'Free space on /storage filesystem.'
+        - uuid: a1b2c3d4e5f60001000000000000f004
+          name: 'MikoPBX: Storage free (%)'
+          key: 'vfs.fs.size[/storage,pfree]'
+          delay: 5m
+          history: 90d
+          units: '%'
+          value_type: FLOAT
+          description: 'Percentage of free space on /storage filesystem.'
       discovery_rules:
         - uuid: 1a14eb932be443938dc49eb2b563d5e9
           name: 'SIP trunk discovery'
@@ -207,6 +236,16 @@ zabbix_export:
       name: 'MikoPBX: No data received from Zabbix agent'
       priority: HIGH
       description: 'Zabbix agent on MikoPBX is not responding for 10 minutes.'
+    - uuid: a1b2c3d4e5f60001000000000000f010
+      expression: 'last(/MikoPBX monitoring/vfs.fs.size[/storage,pfree])<10'
+      name: 'MikoPBX: Storage free space less than 10%'
+      priority: WARNING
+      description: 'Free space on /storage is below 10%.'
+    - uuid: a1b2c3d4e5f60001000000000000f011
+      expression: 'last(/MikoPBX monitoring/vfs.fs.size[/storage,pfree])<5'
+      name: 'MikoPBX: Storage free space less than 5%'
+      priority: HIGH
+      description: 'Free space on /storage is critically low — below 5%.'
   graphs:
     - uuid: 0707e19812c14e1e9ce85143a655017e
       name: 'MikoPBX: Calls overview'
@@ -247,3 +286,20 @@ zabbix_export:
           item:
             host: 'MikoPBX monitoring'
             key: 'asterisk[CountNonActiveProviders]'
+    - uuid: a1b2c3d4e5f60001000000000000f020
+      name: 'MikoPBX: Storage usage'
+      graph_items:
+        - color: 00AA00
+          item:
+            host: 'MikoPBX monitoring'
+            key: 'vfs.fs.size[/storage,total]'
+        - sortorder: '1'
+          color: CC0000
+          item:
+            host: 'MikoPBX monitoring'
+            key: 'vfs.fs.size[/storage,used]'
+        - sortorder: '2'
+          color: 0000CC
+          item:
+            host: 'MikoPBX monitoring'
+            key: 'vfs.fs.size[/storage,free]'

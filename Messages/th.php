@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'ตรวจสอบ MikoPBX ผ่าน Zabbix',
     'modzbx_ConfigFileLabel' => 'ไฟล์คอนฟิกูเรชันเอเจนต์',
     'fw_modulezabbixagent5Description' => 'Zabbix - ตรวจสอบ MikoPBX ผ่าน Zabbix',
+    'modzbx_ServiceStatus' => 'สถานะ Zabbix Agent',
+    'modzbx_StatusRunning' => 'กำลังทำงาน',
+    'modzbx_StatusStopped' => 'หยุดทำงาน',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'เวอร์ชัน',
+    'modzbx_ListenPortLabel' => 'พอร์ตรับฟัง',
+    'modzbx_ServerLabel' => 'เซิร์ฟเวอร์',
+    'modzbx_DownloadTemplate' => 'ดาวน์โหลดเทมเพลต Zabbix',
 ];

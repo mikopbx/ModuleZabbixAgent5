@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'MikoPBX-ის მონიტორინგი Zabbix-ის საშუალებით',
     'modzbx_ConfigFileLabel' => 'აგენტის კონფიგურაციის ფაილი',
     'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX-ის მონიტორინგი Zabbix-ის საშუალებით',
+    'modzbx_ServiceStatus' => 'Zabbix აგენტის სტატუსი',
+    'modzbx_StatusRunning' => 'მუშაობს',
+    'modzbx_StatusStopped' => 'გაჩერებულია',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'ვერსია',
+    'modzbx_ListenPortLabel' => 'მოსმენის პორტი',
+    'modzbx_ServerLabel' => 'სერვერი',
+    'modzbx_DownloadTemplate' => 'Zabbix შაბლონის ჩამოტვირთვა',
 ];

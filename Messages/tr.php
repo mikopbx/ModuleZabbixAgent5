@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'MikoPBX\'in Zabbix üzerinden izlenmesi',
     'modzbx_ConfigFileLabel' => 'Aracı yapılandırma dosyası',
     'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX\'i Zabbix aracılığıyla izleme',
+    'modzbx_ServiceStatus' => 'Zabbix Ajanı Durumu',
+    'modzbx_StatusRunning' => 'Çalışıyor',
+    'modzbx_StatusStopped' => 'Durduruldu',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Sürüm',
+    'modzbx_ListenPortLabel' => 'Dinleme Portu',
+    'modzbx_ServerLabel' => 'Sunucu',
+    'modzbx_DownloadTemplate' => 'Zabbix Şablonu İndir',
 ];

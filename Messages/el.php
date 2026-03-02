@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'Παρακολούθηση MikoPBX μέσω Zabbix',
     'modzbx_ConfigFileLabel' => 'Αρχείο διαμόρφωσης πράκτορα',
     'fw_modulezabbixagent5Description' => 'Zabbix - παρακολούθηση MikoPBX μέσω Zabbix',
+    'modzbx_ServiceStatus' => 'Κατάσταση Zabbix Agent',
+    'modzbx_StatusRunning' => 'Εκτελείται',
+    'modzbx_StatusStopped' => 'Σταματημένο',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Έκδοση',
+    'modzbx_ListenPortLabel' => 'Θύρα ακρόασης',
+    'modzbx_ServerLabel' => 'Διακομιστής',
+    'modzbx_DownloadTemplate' => 'Λήψη προτύπου Zabbix',
 ];

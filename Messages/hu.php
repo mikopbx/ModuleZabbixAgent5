@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'A MikoPBX felügyelete a Zabbix segítségével',
     'modzbx_ConfigFileLabel' => 'Ügynök konfigurációs fájl',
     'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX monitorozás a Zabbix segítségével',
+    'modzbx_ServiceStatus' => 'Zabbix Agent állapota',
+    'modzbx_StatusRunning' => 'Fut',
+    'modzbx_StatusStopped' => 'Leállítva',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Verzió',
+    'modzbx_ListenPortLabel' => 'Figyelő port',
+    'modzbx_ServerLabel' => 'Szerver',
+    'modzbx_DownloadTemplate' => 'Zabbix sablon letöltése',
 ];

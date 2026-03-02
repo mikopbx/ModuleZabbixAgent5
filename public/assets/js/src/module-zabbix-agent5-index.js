@@ -9,6 +9,7 @@ const ModuleZabbixAgent5 = {
 	editor: '',
 	// Form validation rules
 	validateRules: {},
+	$downloadBtn: $('#download-zabbix-template'),
 	/**
 	 * On page load we init some Semantic UI library
 	 */
@@ -17,6 +18,7 @@ const ModuleZabbixAgent5 = {
 		window.addEventListener('ModuleStatusChanged', ModuleZabbixAgent5.checkStatusToggle);
 		ModuleZabbixAgent5.initializeForm();
 		ModuleZabbixAgent5.initializeAce();
+		ModuleZabbixAgent5.$downloadBtn.on('click', ModuleZabbixAgent5.downloadTemplate);
 	},
 
 	/**
@@ -57,6 +59,31 @@ const ModuleZabbixAgent5 = {
 			maxLines: rowsCount,
 			showPrintMargin: false,
 			showLineNumbers: false,
+		});
+	},
+	/**
+	 * Downloads the Zabbix template YAML file via the module REST API.
+	 */
+	downloadTemplate() {
+		$.api({
+			url: `${globalRootUrl}pbxcore/api/modules/ModuleZabbixAgent5/download-template`,
+			on: 'now',
+			successTest(response) {
+				return response !== undefined && response.result === true;
+			},
+			onSuccess(response) {
+				const blob = new Blob([response.data.content], { type: 'application/x-yaml' });
+				const link = document.createElement('a');
+				link.href = URL.createObjectURL(blob);
+				link.download = response.data.filename || 'zbx_mikopbx_template.yaml';
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(link.href);
+			},
+			onFailure() {
+				UserMessage.showMultiString(globalTranslate.modzbx_DownloadTemplate + ': error');
+			},
 		});
 	},
 	/**

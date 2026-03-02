@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => '',
     'modzbx_ConfigFileLabel' => '',
     'fw_modulezabbixagent5Description' => '',
+    'modzbx_ServiceStatus' => 'מצב סוכן Zabbix',
+    'modzbx_StatusRunning' => 'פועל',
+    'modzbx_StatusStopped' => 'מופסק',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'גרסה',
+    'modzbx_ListenPortLabel' => 'פורט האזנה',
+    'modzbx_ServerLabel' => 'שרת',
+    'modzbx_DownloadTemplate' => 'הורד תבנית Zabbix',
 ];

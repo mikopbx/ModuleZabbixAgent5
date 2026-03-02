@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'MikoPBX:n valvonta Zabbixin kautta',
     'modzbx_ConfigFileLabel' => 'Agentin määritystiedosto',
     'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX-valvonta Zabbixin kautta',
+    'modzbx_ServiceStatus' => 'Zabbix-agentin tila',
+    'modzbx_StatusRunning' => 'Käynnissä',
+    'modzbx_StatusStopped' => 'Pysäytetty',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Versio',
+    'modzbx_ListenPortLabel' => 'Kuunteluportti',
+    'modzbx_ServerLabel' => 'Palvelin',
+    'modzbx_DownloadTemplate' => 'Lataa Zabbix-malli',
 ];

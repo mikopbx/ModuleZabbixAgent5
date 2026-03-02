@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => '通过 Zabbix 监控 MikoPBX',
     'modzbx_ConfigFileLabel' => '代理配置文件',
     'fw_modulezabbixagent5Description' => 'Zabbix - 通过 Zabbix 监控 MikoPBX',
+    'modzbx_ServiceStatus' => 'Zabbix代理状态',
+    'modzbx_StatusRunning' => '运行中',
+    'modzbx_StatusStopped' => '已停止',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => '版本',
+    'modzbx_ListenPortLabel' => '监听端口',
+    'modzbx_ServerLabel' => '服务器',
+    'modzbx_DownloadTemplate' => '下载Zabbix模板',
 ];

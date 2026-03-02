@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'Giám sát MikoPBX qua Zabbix',
     'modzbx_ConfigFileLabel' => 'Tập tin cấu hình đại lý',
     'fw_modulezabbixagent5Description' => 'Zabbix - giám sát MikoPBX qua Zabbix',
+    'modzbx_ServiceStatus' => 'Trạng thái Zabbix Agent',
+    'modzbx_StatusRunning' => 'Đang chạy',
+    'modzbx_StatusStopped' => 'Đã dừng',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Phiên bản',
+    'modzbx_ListenPortLabel' => 'Cổng lắng nghe',
+    'modzbx_ServerLabel' => 'Máy chủ',
+    'modzbx_DownloadTemplate' => 'Tải xuống mẫu Zabbix',
 ];

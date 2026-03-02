@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'MikoPBX monitoren via Zabbix',
     'modzbx_ConfigFileLabel' => 'Agentconfiguratiebestand',
     'fw_modulezabbixagent5Description' => 'Zabbix - MikoPBX monitoren via Zabbix',
+    'modzbx_ServiceStatus' => 'Zabbix Agent Status',
+    'modzbx_StatusRunning' => 'Actief',
+    'modzbx_StatusStopped' => 'Gestopt',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Versie',
+    'modzbx_ListenPortLabel' => 'Luisterpoort',
+    'modzbx_ServerLabel' => 'Server',
+    'modzbx_DownloadTemplate' => 'Zabbix-sjabloon downloaden',
 ];

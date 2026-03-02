@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'Praćenje MikoPBX-a putem Zabbixa',
     'modzbx_ConfigFileLabel' => 'Datoteka za konfiguraciju agenta',
     'fw_modulezabbixagent5Description' => 'Zabbix - Nadzor MikoPBX-a putem Zabbixa',
+    'modzbx_ServiceStatus' => 'Status Zabbix agenta',
+    'modzbx_StatusRunning' => 'Pokrenut',
+    'modzbx_StatusStopped' => 'Zaustavljen',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Verzija',
+    'modzbx_ListenPortLabel' => 'Port za slušanje',
+    'modzbx_ServerLabel' => 'Poslužitelj',
+    'modzbx_DownloadTemplate' => 'Preuzmi Zabbix predložak',
 ];

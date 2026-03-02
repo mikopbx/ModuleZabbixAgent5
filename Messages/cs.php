@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => 'Sledování MikoPBX přes Zabbix',
     'modzbx_ConfigFileLabel' => 'Konfigurační soubor agenta',
     'fw_modulezabbixagent5Description' => 'Zabbix - sledování MikoPBX přes Zabbix',
+    'modzbx_ServiceStatus' => 'Stav agenta Zabbix',
+    'modzbx_StatusRunning' => 'Spuštěn',
+    'modzbx_StatusStopped' => 'Zastaven',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'Verze',
+    'modzbx_ListenPortLabel' => 'Naslouchací port',
+    'modzbx_ServerLabel' => 'Server',
+    'modzbx_DownloadTemplate' => 'Stáhnout šablonu Zabbix',
 ];

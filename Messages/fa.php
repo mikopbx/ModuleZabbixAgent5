@@ -23,4 +23,12 @@ return [
     'SubHeaderModuleZabbixAgent5' => '',
     'modzbx_ConfigFileLabel' => '',
     'fw_modulezabbixagent5Description' => '',
+    'modzbx_ServiceStatus' => 'وضعیت عامل Zabbix',
+    'modzbx_StatusRunning' => 'در حال اجرا',
+    'modzbx_StatusStopped' => 'متوقف',
+    'modzbx_PidLabel' => 'PID',
+    'modzbx_VersionLabel' => 'نسخه',
+    'modzbx_ListenPortLabel' => 'پورت گوش دادن',
+    'modzbx_ServerLabel' => 'سرور',
+    'modzbx_DownloadTemplate' => 'دانلود قالب Zabbix',
 ];

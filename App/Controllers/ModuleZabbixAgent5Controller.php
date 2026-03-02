@@ -47,6 +47,7 @@ class ModuleZabbixAgent5Controller extends BaseController
     {
         $footerCollection = $this->assets->collection(AssetProvider::FOOTER_JS);
         $footerCollection->addJs('js/pbx/main/form.js', true);
+        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-zabbix-agent5-status-worker.js", true);
         $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-zabbix-agent5-index.js", true);
 
         $footerCollectionACE = $this->assets->collection(AssetProvider::FOOTER_ACE);
