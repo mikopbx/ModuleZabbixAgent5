@@ -1,3 +1,7 @@
+[![CI](https://github.com/mikopbx/ModuleZabbixAgent5/actions/workflows/build.yml/badge.svg)](https://github.com/mikopbx/ModuleZabbixAgent5/actions/workflows/build.yml) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![GitHub Release](https://img.shields.io/github/v/release/mikopbx/ModuleZabbixAgent5)](https://github.com/mikopbx/ModuleZabbixAgent5/releases) [![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)](https://www.php.net/) [![Zabbix 6.0](https://img.shields.io/badge/Zabbix-6.0_LTS-D40000.svg)](https://www.zabbix.com/) [![MikoPBX 2025.1.1+](https://img.shields.io/badge/MikoPBX-2025.1.1+-1DBF73.svg)](https://www.mikopbx.com/) [![Issues](https://img.shields.io/github/issues/mikopbx/ModuleZabbixAgent5)](https://github.com/mikopbx/ModuleZabbixAgent5/issues)
+
+[English](README.md) | [Русский](README.ru.md)
+
 # ModuleZabbixAgent5
 
 Module for integrating Zabbix Agent with MikoPBX. Collects and sends PBX metrics to a Zabbix server for monitoring.
@@ -13,6 +17,50 @@ Module for integrating Zabbix Agent with MikoPBX. Collects and sends PBX metrics
 - Automatic service management (start/stop/restart)
 - Firewall rule for Zabbix port (default 10050)
 - Cron-based health check every 5 minutes
+
+## Installation
+
+### From the MikoPBX Marketplace
+
+1. Open the MikoPBX web interface.
+2. Navigate to **Modules** > **Marketplace**.
+3. Find **ModuleZabbixAgent5** in the list and click **Install**.
+4. Once installed, enable the module on the **Modules** > **Installed** page.
+
+### Manual installation
+
+1. Download the latest `.zip` release from the [Releases](https://github.com/mikopbx/ModuleZabbixAgent5/releases) page.
+2. In the MikoPBX web interface, go to **Modules** > **Installed**.
+3. Click **Upload module** and select the downloaded `.zip` file.
+4. Enable the module after installation.
+
+## Configuration
+
+After enabling the module, open its settings page in MikoPBX to edit the Zabbix agent configuration.
+
+### Connecting to a Zabbix server
+
+Set the following directives in `zabbix_agentd.conf` via the built-in editor:
+
+- **`Server`** -- comma-separated list of Zabbix server/proxy IP addresses allowed to query the agent (passive checks).
+- **`ServerActive`** -- Zabbix server/proxy address for active checks (the agent initiates the connection). Format: `<address>:<port>`.
+
+Example:
+
+```
+Server=192.168.1.100
+ServerActive=192.168.1.100:10051
+Hostname=mikopbx-office
+```
+
+### Importing the Zabbix template
+
+1. In the module settings page, click **Download Zabbix Template** to save the YAML file.
+   Alternatively, download it via the REST API: `GET /pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate`.
+2. Open your Zabbix server web interface.
+3. Navigate to **Data collection** > **Templates** (Zabbix 6.0+) or **Configuration** > **Templates** (older versions).
+4. Click **Import** and upload the downloaded `zbx_export_templates.yaml` file.
+5. Assign the imported template to the host representing your MikoPBX instance.
 
 ## Monitored metrics
 
@@ -87,103 +135,16 @@ Both produce fully statically linked binaries with OpenSSL support.
 ## Requirements
 
 - MikoPBX 2025.1.1+
+- PHP 8.4
+- Zabbix Server 5.0+ (template compatible with 5.0, 6.0, 7.0)
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/mikopbx/ModuleZabbixAgent5/issues)
+- **Wiki**: [GitHub Wiki](https://github.com/mikopbx/ModuleZabbixAgent5/wiki)
+- **Email**: [help@miko.ru](mailto:help@miko.ru)
+- **Telegram**: [@mikaboris](https://t.me/mikaboris)
 
 ## License
-
-GPL-3.0-or-later
-
----
-
-# ModuleZabbixAgent5 (Русский)
-
-Модуль интеграции Zabbix Agent с MikoPBX. Собирает и отправляет метрики АТС на сервер Zabbix для мониторинга.
-
-## Возможности
-
-- Zabbix Agent 6.0 LTS (v6.0.44), статически слинкован (без внешних зависимостей)
-- Поддержка архитектур x86_64 и ARM64 (aarch64)
-- Веб-интерфейс для редактирования `zabbix_agentd.conf`
-- Отображение статуса сервиса в реальном времени (состояние, PID, версия, порт, сервер)
-- Кнопка скачивания шаблона Zabbix для импорта на сервер Zabbix
-- REST API v3 с автообнаружением (PHP 8 атрибуты, паттерн Processor + Actions)
-- Автоматическое управление сервисом (старт/стоп/рестарт)
-- Правило файрвола для порта Zabbix (по умолчанию 10050)
-- Проверка состояния сервиса по cron каждые 5 минут
-
-## Метрики мониторинга
-
-Все метрики доступны через UserParameter ключ `asterisk[<функция>]`.
-
-### Метрики Asterisk
-
-| Метрика | Ключ Zabbix |
-|---|---|
-| Активные вызовы (Asterisk CLI) | `asterisk[callsActive]` |
-| Обработанные вызовы | `asterisk[callsProcessed]` |
-| Активные каналы | `asterisk[channelsActive]` |
-| Входящие вызовы (через API) | `asterisk[countInCalls]` |
-| Исходящие вызовы (через API) | `asterisk[countOutCalls]` |
-| Внутренние вызовы (через API) | `asterisk[countInnerCalls]` |
-| SIP-пиры (всего) | `asterisk[countSipPeers]` |
-| SIP-пиры (онлайн) | `asterisk[CountActivePeers]` |
-| SIP-транки (онлайн) | `asterisk[CountActiveProviders]` |
-| SIP-транки (офлайн) | `asterisk[CountNonActiveProviders]` |
-| Аптайм Asterisk | `asterisk[statusUptime]` |
-| Время последнего reload | `asterisk[statusReload]` |
-| Версия Asterisk | `asterisk[version]` |
-| Статус Asterisk (1/0) | `asterisk[status]` |
-
-### Обнаружение SIP-транков (LLD)
-
-| Метрика | Ключ Zabbix |
-|---|---|
-| Статус регистрации транка | `asterisk[trunkStatus,{#TRUNKID}]` |
-| Входящие звонки за час | `asterisk[trunkCalls,{#TRUNKID},hour,incoming,totalCalls]` |
-| Исходящие звонки за час | `asterisk[trunkCalls,{#TRUNKID},hour,outgoing,totalCalls]` |
-| Входящие звонки за сутки | `asterisk[trunkCalls,{#TRUNKID},day,incoming,totalCalls]` |
-| Исходящие звонки за сутки | `asterisk[trunkCalls,{#TRUNKID},day,outgoing,totalCalls]` |
-| Отвеченные входящие за час | `asterisk[trunkCalls,{#TRUNKID},hour,incoming,answeredCalls]` |
-| Отвеченные исходящие за час | `asterisk[trunkCalls,{#TRUNKID},hour,outgoing,answeredCalls]` |
-
-### Мониторинг диска /storage
-
-| Метрика | Ключ Zabbix |
-|---|---|
-| Общий размер | `vfs.fs.size[/storage,total]` |
-| Занято | `vfs.fs.size[/storage,used]` |
-| Свободно | `vfs.fs.size[/storage,free]` |
-| Свободно (%) | `vfs.fs.size[/storage,pfree]` |
-
-## REST API
-
-REST API v3 эндпоинты (автообнаружение через PHP 8 атрибуты):
-
-| Метод | Эндпоинт | Описание |
-|---|---|---|
-| GET | `/pbxcore/api/v3/module-zabbix-agent5/status:getStatus` | Статус сервиса (запущен, PID, версия, порт, сервер) |
-| GET | `/pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate` | Скачать шаблон Zabbix в формате YAML |
-
-## Шаблон Zabbix
-
-Включённый шаблон (`bin/zbx_export_templates.yaml`) содержит:
-- Все элементы данных Asterisk
-- LLD SIP-транков со статусом и статистикой звонков по каждому транку
-- Мониторинг диска /storage с триггерами (WARNING <10%, HIGH <5%)
-- Графики: обзор звонков, SIP-эндпоинты, звонки по транкам за час, использование хранилища
-- Триггеры: Asterisk не запущен, неактивные транки, нет SIP-пиров, нет данных от агента
-
-## Сборка
-
-Бинарники собираются автоматически в GitHub Actions:
-- **AMD64**: нативная сборка на Alpine Linux с musl (статическая линковка)
-- **ARM64**: кросс-компиляция на AMD64 с помощью `aarch64-linux-gnu-gcc`
-
-Оба варианта — полностью статически слинкованные бинарники с поддержкой OpenSSL.
-
-## Требования
-
-- MikoPBX 2025.1.1+
-
-## Лицензия
 
 GPL-3.0-or-later

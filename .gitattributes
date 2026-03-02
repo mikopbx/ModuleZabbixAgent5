@@ -1,0 +1,12 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Binary files
+bin/zabbix_agentd binary
+bin/zabbix_agentd_arm binary
+
+# Export ignore (excluded from release archives)
+.github/ export-ignore
+CLAUDE.md export-ignore
+.gitattributes export-ignore
+CONTRIBUTING.md export-ignore

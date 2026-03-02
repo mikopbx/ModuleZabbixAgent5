@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation (English)
+    url: https://docs.mikopbx.com/mikopbx/modules/miko/module-zabbix-agent
+    about: Read the module documentation
+  - name: Documentation (Russian)
+    url: https://wiki.mikopbx.com/modules:miko:modulezabbixagent5
+    about: Документация модуля на русском языке
+  - name: Support Email
+    url: mailto:help@miko.ru
+    about: Contact support for urgent issues
