@@ -65,7 +65,7 @@ const ModuleZabbixAgent5 = {
 	 * Downloads the Zabbix template YAML file via the module REST API (fpassthru streaming).
 	 */
 	downloadTemplate() {
-		window.location.href = `${globalRootUrl}pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate`;
+		window.location.href = '/pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate';
 	},
 	/**
 	 * Callback function to be called before the form is sent
