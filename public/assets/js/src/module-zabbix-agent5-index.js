@@ -1,4 +1,4 @@
-/* global globalRootUrl, globalTranslate, Form, ace */
+/* global globalRootUrl, globalTranslate, Form, ace, Config, TokenManager */
 
 const ModuleZabbixAgent5 = {
 	$formObj: $('#module-zabbix-agent5-form'),
@@ -62,10 +62,43 @@ const ModuleZabbixAgent5 = {
 		});
 	},
 	/**
-	 * Downloads the Zabbix template YAML file via the module REST API (fpassthru streaming).
+	 * Downloads the Zabbix template YAML file via fetch with Bearer token.
 	 */
 	downloadTemplate() {
-		window.location.href = '/pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate';
+		const downloadUrl = `${Config.pbxUrl}/pbxcore/api/v3/module-zabbix-agent5/status:downloadTemplate`;
+		const headers = {
+			'X-Requested-With': 'XMLHttpRequest',
+		};
+		if (typeof TokenManager !== 'undefined' && TokenManager.accessToken) {
+			headers['Authorization'] = `Bearer ${TokenManager.accessToken}`;
+		}
+
+		fetch(downloadUrl, { headers })
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+				}
+				let filename = 'zbx_mikopbx_template.yaml';
+				const disposition = response.headers.get('Content-Disposition');
+				if (disposition) {
+					const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+					if (match && match[1]) {
+						filename = match[1].replace(/['"]/g, '');
+					}
+				}
+				return response.blob().then(blob => ({ blob, filename }));
+			})
+			.then(({ blob, filename }) => {
+				const blobUrl = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = blobUrl;
+				a.download = filename;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+			})
+			.catch(() => {});
 	},
 	/**
 	 * Callback function to be called before the form is sent
