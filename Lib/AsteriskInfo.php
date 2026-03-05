@@ -163,7 +163,8 @@ class AsteriskInfo
         $data = self::callApi('/pbxcore/api/v3/sip:getStatuses');
         if ($data !== null) {
             foreach ($data as $peer) {
-                if (($peer['status'] ?? '') === 'OK') {
+                $status = $peer['status'] ?? '';
+                if ($status === 'OK' || $status === 'Available') {
                     $ch++;
                 }
             }

@@ -157,7 +157,8 @@ class ZabbixAgent5Main extends Injectable
         $service = self::SERVICE_ZABBIX_AGENT;
         $path = "{$main->dirs['binDir']}/{$service}";
         $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
-        file_put_contents($configPath, $main->module_settings['configContent']);
+        $config = self::fixUserParameter($main->module_settings['configContent'], $main->dirs['binDir']);
+        file_put_contents($configPath, $config);
         Processes::processWorker($path, '-c ' . $configPath, $service, 'start');
     }
 
@@ -174,8 +175,29 @@ class ZabbixAgent5Main extends Injectable
         $service = self::SERVICE_ZABBIX_AGENT;
         $path = "{$main->dirs['binDir']}/{$service}";
         $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
-        file_put_contents($configPath, $main->module_settings['configContent']);
+        $config = self::fixUserParameter($main->module_settings['configContent'], $main->dirs['binDir']);
+        file_put_contents($configPath, $config);
         Processes::processWorker($path, '-c ' . $configPath, $service, 'restart');
+    }
+
+    /**
+     * Ensures the UserParameter line points to the correct asterisk-stats.sh path
+     * with all required positional arguments.
+     */
+    private static function fixUserParameter(string $config, string $binDir): string
+    {
+        $correctLine = 'UserParameter=asterisk[*],' . $binDir . '/asterisk-stats.sh $1 $2 $3 $4 $5';
+        $config = preg_replace(
+            '/^UserParameter=asterisk\[.*$/m',
+            addcslashes($correctLine, '$'),
+            $config,
+            1,
+            $count
+        );
+        if ($count === 0) {
+            $config .= "\n" . $correctLine . "\n";
+        }
+        return $config;
     }
 
     /**
