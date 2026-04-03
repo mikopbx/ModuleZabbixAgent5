@@ -90,6 +90,9 @@ class ZabbixAgent5Conf extends ConfigClass
     {
         $workerPath = $this->moduleDir.'/bin/zabbix-safe-script.sh';
         $tasks[]    = "*/5 * * * * {$workerPath} > /dev/null 2> /dev/null\n";
+
+        $collectorPath = $this->moduleDir.'/bin/zabbix-stats-collector.sh';
+        $tasks[]       = "*/5 * * * * {$collectorPath} > /dev/null 2> /dev/null\n";
     }
 
 }

@@ -159,6 +159,7 @@ class ZabbixAgent5Main extends Injectable
         $configPath = "{$main->dirs['confDir']}/zabbix_agentd.conf";
         $config = self::fixUserParameter($main->module_settings['configContent'], $main->dirs['binDir']);
         file_put_contents($configPath, $config);
+        Util::mwMkdir('/storage/usbdisk1/mikopbx/tmp/ModuleZabbixAgent5');
         Processes::processWorker($path, '-c ' . $configPath, $service, 'start');
     }
 

@@ -124,10 +124,22 @@ trunkStatus(){
     php -f "$PHP_INFO" trunkStatus "$1";
 }
 
-# Function to get CDR call statistics for a specific trunk
+# Function to get CDR call statistics for a specific trunk from cache
 # Args: trunkId period direction metric
+# Cache is populated by zabbix-stats-collector.sh every 5 minutes
 trunkCalls(){
-    php -f "$PHP_INFO" trunkCalls "$1" "$2" "$3" "$4";
+    # Validate parameters to prevent path injection
+    case "$2" in hour|day) ;; *) echo 0; return;; esac
+    case "$3" in incoming|outgoing|all) ;; *) echo 0; return;; esac
+    case "$4" in totalCalls|answeredCalls|totalDuration|totalBillsec) ;; *) echo 0; return;; esac
+
+    CACHE_DIR="/storage/usbdisk1/mikopbx/tmp/ModuleZabbixAgent5"
+    CACHE_FILE="${CACHE_DIR}/trunkCalls_${1}_${2}_${3}_${4}"
+    if [ -f "$CACHE_FILE" ]; then
+        /bin/busybox cat "$CACHE_FILE"
+    else
+        echo 0
+    fi
 }
 
 # Execute the function passed as an argument with whitelist validation

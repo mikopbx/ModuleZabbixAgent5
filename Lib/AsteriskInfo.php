@@ -19,9 +19,8 @@
 
 namespace Modules\ModuleZabbixAgent5\Lib;
 
-use MikoPBX\Common\Providers\PBXCoreRESTClientProvider;
-
 require_once 'Globals.php';
+require_once __DIR__ . '/ApiHelper.php';
 
 class AsteriskInfo
 {
@@ -29,63 +28,6 @@ class AsteriskInfo
     public const IN_CALL = 1;
     public const OUT_CALL = 2;
     public const MAX_LEN_NUM = 6;
-
-    /**
-     * Calls REST API v3 endpoint and returns parsed data.
-     * Handles output buffering (suppresses REST client error output)
-     * and v3 response envelope unwrapping.
-     */
-    private static function callApi(string $path, array $params = []): ?array
-    {
-        try {
-            ob_start();
-            $di = \Phalcon\Di\Di::getDefault();
-            $restAnswer = $di->get(PBXCoreRESTClientProvider::SERVICE_NAME, [
-                $path,
-                PBXCoreRESTClientProvider::HTTP_METHOD_GET,
-                $params
-            ]);
-            ob_end_clean();
-            if (!$restAnswer->success) {
-                return null;
-            }
-            $data = $restAnswer->data;
-            if (is_string($data)) {
-                $data = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
-            }
-            // Handle v3 API envelope {result, data, ...}
-            if (is_array($data) && array_key_exists('result', $data)) {
-                return $data['result'] ? ($data['data'] ?? []) : null;
-            }
-            return is_array($data) ? $data : null;
-        } catch (\Throwable $e) {
-            if (ob_get_level() > 0) {
-                ob_end_clean();
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Retrieves all provider statuses (SIP + IAX) from v3 API.
-     * Returns flat array of provider objects.
-     */
-    private static function getAllProviderStatuses(): array
-    {
-        $data = self::callApi('/pbxcore/api/v3/sip-providers:getStatuses');
-        if ($data === null) {
-            return [];
-        }
-        $providers = [];
-        foreach (['sip', 'iax'] as $type) {
-            if (isset($data[$type]) && is_array($data[$type])) {
-                foreach ($data[$type] as $provider) {
-                    $providers[] = $provider;
-                }
-            }
-        }
-        return $providers;
-    }
 
     // Counts the total number of active calls
     public static function countCalls(): void
@@ -96,7 +38,7 @@ class AsteriskInfo
     // Retrieves active calls from the PBX status API
     public static function getActiveCalls(): array
     {
-        $data = self::callApi('/pbxcore/api/v3/pbx-status:getActiveCalls');
+        $data = ApiHelper::callApi('/pbxcore/api/v3/pbx-status:getActiveCalls');
         return is_array($data) ? $data : [];
     }
 
@@ -152,7 +94,7 @@ class AsteriskInfo
     // Counts total SIP extensions via v3 API
     public static function getCountSipPeers(): void
     {
-        $data = self::callApi('/pbxcore/api/v3/sip:getStatuses');
+        $data = ApiHelper::callApi('/pbxcore/api/v3/sip:getStatuses');
         echo ($data !== null) ? count($data) : 0;
     }
 
@@ -160,7 +102,7 @@ class AsteriskInfo
     public static function getCountActivePeers(): void
     {
         $ch = 0;
-        $data = self::callApi('/pbxcore/api/v3/sip:getStatuses');
+        $data = ApiHelper::callApi('/pbxcore/api/v3/sip:getStatuses');
         if ($data !== null) {
             foreach ($data as $peer) {
                 $status = $peer['status'] ?? '';
@@ -176,7 +118,7 @@ class AsteriskInfo
     public static function getCountActiveProviders(): void
     {
         $ch = 0;
-        foreach (self::getAllProviderStatuses() as $provider) {
+        foreach (ApiHelper::getAllProviderStatuses() as $provider) {
             $state = strtoupper($provider['state'] ?? '');
             if ($state === 'OK' || $state === 'REGISTERED') {
                 $ch++;
@@ -189,7 +131,7 @@ class AsteriskInfo
     public static function getCountNonActiveProviders(): void
     {
         $ch = 0;
-        foreach (self::getAllProviderStatuses() as $provider) {
+        foreach (ApiHelper::getAllProviderStatuses() as $provider) {
             $state = strtoupper($provider['state'] ?? '');
             if ($state !== 'OK' && $state !== 'REGISTERED' && $state !== 'OFF') {
                 $ch++;
@@ -202,7 +144,7 @@ class AsteriskInfo
     public static function discoveryTrunks(): void
     {
         $result = [];
-        foreach (self::getAllProviderStatuses() as $provider) {
+        foreach (ApiHelper::getAllProviderStatuses() as $provider) {
             $id = $provider['id'] ?? '';
             if ($id === '') {
                 continue;
@@ -220,7 +162,7 @@ class AsteriskInfo
     public static function trunkStatus(string $trunkId = ''): void
     {
         $result = 'UNKNOWN';
-        foreach (self::getAllProviderStatuses() as $provider) {
+        foreach (ApiHelper::getAllProviderStatuses() as $provider) {
             if (($provider['id'] ?? '') === $trunkId) {
                 $result = strtoupper($provider['state'] ?? 'UNKNOWN');
                 break;
@@ -253,7 +195,7 @@ class AsteriskInfo
         $interval = $period === 'day' ? 'PT24H' : 'PT1H';
         $dateFrom = (clone $now)->sub(new \DateInterval($interval))->format('Y-m-d H:i:s');
 
-        $data = self::callApi('/pbxcore/api/v3/cdr:getStatsByProvider', [
+        $data = ApiHelper::callApi('/pbxcore/api/v3/cdr:getStatsByProvider', [
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
             'provider' => $trunkId,
