@@ -118,9 +118,7 @@ REST API v3 эндпоинты (автообнаружение через PHP 8 
 ## Поддержка
 
 - [Issues на GitHub](https://github.com/mikopbx/ModuleZabbixAgent5/issues)
-- [Документация](https://docs.mikopbx.com/mikopbx/modules/miko/module-zabbix-agent)
-- Email: help@miko.ru
-- Telegram: @mikaboris
+- Telegram: [@mikopbx_dev](https://t.me/mikopbx_dev)
 
 ## Требования
 

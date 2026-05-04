@@ -141,9 +141,7 @@ Both produce fully statically linked binaries with OpenSSL support.
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/mikopbx/ModuleZabbixAgent5/issues)
-- **Wiki**: [GitHub Wiki](https://github.com/mikopbx/ModuleZabbixAgent5/wiki)
-- **Email**: [help@miko.ru](mailto:help@miko.ru)
-- **Telegram**: [@mikaboris](https://t.me/mikaboris)
+- **Telegram**: [@mikopbx_dev](https://t.me/mikopbx_dev)
 
 ## License
 
