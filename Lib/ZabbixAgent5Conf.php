@@ -95,4 +95,21 @@ class ZabbixAgent5Conf extends ConfigClass
         $tasks[]       = "*/5 * * * * {$collectorPath} > /dev/null 2> /dev/null\n";
     }
 
+    /**
+     * The config editor accepts arbitrary Zabbix UserParameter strings that
+     * legitimately embed shell pipelines, SQL queries against the Asterisk DB,
+     * and natural-language comments — patterns the WAF body-scan flags as
+     * injection attempts. Exempt the save endpoint from body inspection.
+     *
+     * No-op on MikoPBX releases that predate WafRegistry (< 2026.2.118):
+     * the parent ConfigClass lacks this method, so the override is just
+     * unused public API and the module continues to install and run.
+     */
+    public function getWafExemptions(): array
+    {
+        return [
+            '/admin-cabinet/module-zabbix-agent5/save' => ['body-scan'],
+        ];
+    }
+
 }
