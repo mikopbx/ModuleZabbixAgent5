@@ -1,78 +1,32 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file records only repository-specific contracts whose violation causes failures.
 
-## Project Overview
+## Non-obvious contracts
 
-MikoPBX module that integrates Zabbix Agent (built from source as v6.0.44) for monitoring Asterisk PBX metrics. Collects active calls, channels, SIP peer/trunk status, uptime, and version info via `asterisk[<metric>]` UserParameter keys.
+- **Generated JavaScript:** Edit only `public/assets/js/src/*.js`. Rebuild each changed source with:
 
-- **Module ID:** ModuleZabbixAgent5
-- **Namespace:** `Modules\ModuleZabbixAgent5`
-- **Min PBX version:** 2025.1.1
-- **PHP:** 8.4 with Phalcon 5.x
-- **License:** GPL-3.0-or-later
+  ```bash
+  /Users/nb/PhpstormProjects/mikopbx/MikoPBXUtils/node_modules/.bin/babel "$INPUT_FILE" \
+    --out-dir "$OUTPUT_DIR" \
+    --source-maps inline \
+    --presets airbnb
+  ```
 
-## Build & Development
+  Set `OUTPUT_DIR` to `public/assets/js`. Do not hand-edit tracked files in that directory. If `babel-preset-airbnb` is unavailable, do not install dependencies or modify generated output without explicit approval.
 
-**JS compilation** (source → compiled with inline sourcemaps):
-```bash
-/Users/nb/PhpstormProjects/mikopbx/MikoPBXUtils/node_modules/.bin/babel \
-  public/assets/js/src/module-zabbix-agent5-index.js \
-  --out-dir public/assets/js \
-  --source-maps inline \
-  --presets airbnb
-```
+- **PHP verification:** There is no module test suite. Run PHPStan for every changed PHP file with `--memory-limit=1G`; syntax checks alone are not sufficient.
 
-**PHP quality check** — no test suite; use `phpstan` after PHP changes.
+- **Minimal target shell:** Scripts under `bin/` and `Setup/zabbix/scripts/` run under `/bin/sh` on a BusyBox-based system. Avoid Bash-only syntax and preserve explicit BusyBox applet use where it exists.
 
-**CI** (`.github/workflows/build.yml`): Inherits from `mikopbx/.github-workflows` shared workflow. Compiles Zabbix Agent 6.0.44 statically for amd64 (Dockerfile.amd64) and arm64 (Dockerfile.arm64, cross-compiled), placing binaries at `bin/zabbix_agentd` and `bin/zabbix_agentd_arm`. Build Dockerfiles live in `.github/build/zabbix-agent-builder/`. Triggers on push to `master` and `develop`.
+- **Standalone bootstrap:** CLI and worker entry points use `require_once 'Globals.php'` and cannot assume the web application's autoloader or DI bootstrap. Keep this bootstrap and the shared `ApiHelper` path intact.
 
-## Architecture
+- **Config-editor WAF exemption:** `ZabbixAgent5Conf::getWafExemptions()` must continue exempting `/admin-cabinet/module-zabbix-agent5/save` from `body-scan`. Valid Zabbix `UserParameter` content contains shell pipelines and SQL-like text that otherwise causes false-positive request rejection.
 
-### Data Flow
+- **CDR statistics cache:** Zabbix polling must read trunk-call statistics from `/storage/usbdisk1/mikopbx/tmp/ModuleZabbixAgent5`. Collection remains a five-minute cron job and writes with a temporary file followed by an atomic rename. Do not replace cached reads with REST calls per Zabbix item; that creates a request thundering herd.
 
-1. **Web UI** → User edits `zabbix_agentd.conf` in ACE editor (Volt template + JS)
-2. **Controller** (`saveAction`) → saves `configContent` to `m_ModuleZabbixAgent5` table
-3. **Config hook** (`modelsEventChangeData`) detects DB change → calls `ZabbixAgent5Main::startService()`
-4. **Service manager** writes config to `/etc/custom_modules/ModuleZabbixAgent5/zabbix_agentd.conf` and restarts `zabbix_agentd`
-5. **Zabbix agent** calls `bin/asterisk-stats.sh <function>` via UserParameter — shell functions for simple metrics (uptime, version, calls via CLI), delegates to `php -f Lib/AsteriskInfo.php <method>` for API-based metrics (SIP peers, trunks, call direction counts)
-6. **Cron** runs `bin/zabbix-safe-script.sh` every 5 min as a health check to restart agent if not running
+- **UserParameter arity:** The generated `asterisk[*]` line must pass `$1` through `$5` to `asterisk-stats.sh`. Change `fixUserParameter()` and the script dispatch together if argument semantics change.
 
-### Key Extension Points (MikoPBX Module System)
+- **Agent binaries:** `bin/zabbix_agentd` and `bin/zabbix_agentd_arm` are CI artifacts and stay gitignored. Do not add locally built binaries.
 
-- **`Lib/ZabbixAgent5Conf.php`** (extends `ConfigClass`) — lifecycle hooks: start/stop service on enable/disable, restart on DB change, firewall rules (port 10050), cron task registration
-- **`Lib/ZabbixAgent5Main.php`** — core service manager: directory setup, config loading (DB → fallback to `bin/zabbix_agentd_default.conf`), start/stop via `Processes::processWorker`
-- **`Lib/AsteriskInfo.php`** — standalone CLI script (not autoloaded) that collects Asterisk metrics via MikoPBX REST API v3 (`/pbxcore/api/v3/pbx-status:getActiveCalls`, `/pbxcore/api/v3/sip:getStatuses`, `/pbxcore/api/v3/sip-providers:getStatuses`). Invoked as `php -f AsteriskInfo.php <methodName> [args]` by shell scripts
-- **`Lib/MikoPBXVersion.php`** — Phalcon 5 helper (Di, Validation, Logger class resolution)
-- **`Setup/PbxExtensionSetup.php`** — empty, inherits all default install/uninstall behavior
-
-### Workers (Beanstalk/AMI)
-
-- **`WorkerZabbixAgent5Main.php`** — Beanstalk message queue listener
-- **`WorkerZabbixAgent5AMI.php`** — Asterisk Manager Interface event listener (filters `Interception` UserEvent)
-
-Both workers require `Globals.php` (via `require_once`) and are started as CLI processes with `cli_set_process_title`.
-
-### MVC Layer
-
-- **Model:** `Models/ModuleZabbixAgent5.php` — table `m_ModuleZabbixAgent5`, fields: `id`, `configContent` (LONGTEXT)
-- **Controller:** `App/Controllers/ModuleZabbixAgent5Controller.php` — `indexAction` renders ACE editor, `saveAction` handles POST
-- **Form:** `App/Forms/ModuleZabbixAgent5Form.php` — two hidden fields (`id`, `configContent`)
-- **View:** `App/Views/index.volt` — Volt template, uses ACE editor with `julia` syntax mode for config highlighting
-- **JS:** `public/assets/js/src/module-zabbix-agent5-index.js` — initializes ACE editor (monokai theme), hooks into MikoPBX `Form` object for save
-
-### Runtime Paths (on MikoPBX)
-
-- Config: `/etc/custom_modules/ModuleZabbixAgent5/zabbix_agentd.conf`
-- Logs: `/storage/usbdisk1/mikopbx/log/ModuleZabbixAgent5/`
-- PID: `/var/run/custom_modules/ModuleZabbixAgent5/`
-
-## Conventions
-
-- PSR-4 autoloading from root: `Modules\ModuleZabbixAgent5\` → `/`
-- JS source in `public/assets/js/src/`, compiled output in `public/assets/js/`
-- 29 translation files in `Messages/` — PHP arrays with `modzbx_` prefix keys; add translations to all locale files when adding new strings
-- Shell scripts in `bin/` must use busybox-compatible syntax (MikoPBX runs on a minimal Linux — no bash, use `/bin/sh` with `/bin/busybox` commands)
-- `AsteriskInfo.php` is a CLI-invoked script with `require_once 'Globals.php'` — it bootstraps outside the MikoPBX autoloader
-- Zabbix agent binaries (`bin/zabbix_agentd`, `bin/zabbix_agentd_arm`) are gitignored — built by CI only
-- **Zabbix template UUIDs** (`bin/zbx_export_templates.yaml`): every `uuid:` value MUST be valid UUIDv4 (32 hex chars, no dashes, 13th char = `4`, 17th char one of `8 9 a b`). Zabbix server rejects import with "Invalid parameter /1/uuid: UUIDv4 is expected" if any UUID breaks this rule. When adding or editing template items, groups, triggers, graphs, or discovery rules — always generate proper UUIDv4. Verify with: `grep 'uuid:' bin/zbx_export_templates.yaml | awk '{print $3}' | while read u; do v="${u:12:1}"; r="${u:16:1}"; if [ "$v" != "4" ]; then echo "BAD: $u"; elif [ "$r" != "8" ] && [ "$r" != "9" ] && [ "$r" != "a" ] && [ "$r" != "b" ]; then echo "BAD: $u"; fi; done`
+- **Template UUIDs:** Every `uuid:` in `bin/zbx_export_templates.yaml` is a dashless 32-hex UUIDv4: character 13 is `4`, and character 17 is `8`, `9`, `a`, or `b`. One invalid value makes Zabbix reject the entire import.
