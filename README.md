@@ -85,6 +85,26 @@ All metrics are accessed via `asterisk[<function>]` UserParameter key.
 | Asterisk version | `asterisk[version]` |
 | Asterisk status (1/0) | `asterisk[status]` |
 
+### System metrics
+
+| Metric | Zabbix item key |
+|---|---|
+| Top 10 processes by memory | `asterisk[topMem]` |
+| Top 10 processes by CPU | `asterisk[topCpu]` |
+
+`asterisk[topMem]` returns up to 10 text lines `RSS_MB PID COMMAND`, sorted by
+resident memory descending; kernel threads are excluded.
+
+`asterisk[topCpu]` returns up to 10 text lines `CPU% PID COMMAND`, sorted descending.
+The usage is measured over a 1 second interval at the moment of polling, and 100%
+means the total capacity of all CPU cores.
+
+`COMMAND` is the full command line truncated to 120 characters, so a PHP worker
+reports its process title (for example `MikoPBX\Core\Workers\WorkerCallEvents`)
+rather than just `php`. It comes last because a command line may contain spaces.
+Kernel threads, which have no command line, fall back to their kernel name in
+brackets.
+
 ### SIP trunk discovery (LLD)
 
 | Metric | Zabbix item key |
@@ -136,7 +156,7 @@ Both produce fully statically linked binaries with OpenSSL support.
 
 - MikoPBX 2025.1.1+
 - PHP 8.4
-- Zabbix Server 5.0+ (template compatible with 5.0, 6.0, 7.0)
+- Zabbix Server 6.4+ (the template uses export format 6.4 and imports into 6.4, 7.0 and newer)
 
 ## Support
 
