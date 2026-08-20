@@ -142,11 +142,75 @@ trunkCalls(){
     fi
 }
 
+# Function to list the top 10 processes by resident memory
+# Output: one line per process, "RSS_MB NAME PID", sorted by RSS descending.
+# Kernel threads have no VmRSS line and are skipped automatically.
+topMem(){
+    # Errors are suppressed: processes may die between glob expansion and read
+    /bin/busybox cat /proc/[0-9]*/status 2>/dev/null \
+    | /bin/busybox awk '
+        /^Name:/  { name=$2; for (i=3; i<=NF; i++) { name = name "_" $i } next }
+        /^Pid:/   { pid=$2; next }
+        /^VmRSS:/ { printf "%d %s %s\n", $2, pid, name }
+      ' \
+    | /bin/busybox sort -rn \
+    | /bin/busybox head -n 10 \
+    | /bin/busybox awk '{ printf "%.1fM %s %s\n", $1/1024, $3, $2 }'
+}
+
+# Function to list the top 10 processes by CPU usage
+# Two samples of /proc/<pid>/stat one second apart; the percentage is the delta
+# of (utime+stime) divided by the delta of the total jiffies of all CPUs.
+# 100% therefore means the full capacity of all cores ("Irix off" in top terms).
+# Output: one line per process, "CPU% NAME PID", sorted descending.
+topCpu(){
+    {
+        /bin/busybox cat /proc/stat /proc/[0-9]*/stat 2>/dev/null
+        echo SEP
+        /bin/busybox sleep 1
+        /bin/busybox cat /proc/stat /proc/[0-9]*/stat 2>/dev/null
+    } | /bin/busybox awk '
+        $1 == "SEP" { phase=2; next }
+        $1 == "cpu" {
+            t=0
+            for (i=2; i<=NF; i++) { t+=$i }
+            if (phase == 2) { total2=t } else { total1=t }
+            next
+        }
+        $1 ~ /^[0-9]+$/ {
+            # comm may contain spaces and parentheses: take everything between
+            # the first "(" and the last ")", numeric fields start after it
+            if (match($0, /\(.*\)/) == 0) { next }
+            pid=$1
+            name=substr($0, RSTART+1, RLENGTH-2)
+            gsub(/[ \t]/, "_", name)
+            # after ")" the first field is state (field 3), so utime (field 14)
+            # is f[12] and stime (field 15) is f[13]
+            if (split(substr($0, RSTART+RLENGTH+1), f) < 13) { next }
+            if (phase == 2) { t2[pid]=f[12]+f[13]; nm[pid]=name } else { t1[pid]=f[12]+f[13] }
+        }
+        END {
+            dt = total2 - total1
+            if (dt <= 0) { exit }
+            for (p in t2) {
+                if (p in t1) {
+                    d = t2[p] - t1[p]
+                    if (d > 0) { printf "%.1f %s %s\n", d*100/dt, nm[p], p }
+                }
+            }
+        }
+      ' \
+    | /bin/busybox sort -rn \
+    | /bin/busybox head -n 10 \
+    | /bin/busybox awk '{ printf "%s%% %s %s\n", $1, $2, $3 }'
+}
+
 # Execute the function passed as an argument with whitelist validation
 case "$1" in
     status|version|statusReload|statusUptime|callsActive|channelsActive|callsProcessed|\
 sipTrunkDown|countSipPeers|countInCalls|countOutCalls|countInnerCalls|\
-CountActiveProviders|CountNonActiveProviders|CountActivePeers|discoveryTrunks)
+CountActiveProviders|CountNonActiveProviders|CountActivePeers|discoveryTrunks|\
+topMem|topCpu)
         "$1"
         ;;
     trunkStatus)

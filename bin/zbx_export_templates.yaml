@@ -97,6 +97,22 @@ zabbix_export:
           trends: '0'
           value_type: CHAR
           description: 'Asterisk version string.'
+        - uuid: aa7ac83027994480b960a700bd7f91ee
+          name: 'MikoPBX: Top 10 processes by memory'
+          key: 'asterisk[topMem]'
+          delay: 5m
+          history: 7d
+          trends: '0'
+          value_type: TEXT
+          description: 'Top 10 processes by resident memory (RSS). One line per process: "RSS_MB NAME PID", sorted by RSS descending. Kernel threads are excluded. Spaces in a process name are replaced with underscores.'
+        - uuid: d605ae60404548219a0a06b8c461be6d
+          name: 'MikoPBX: Top 10 processes by CPU'
+          key: 'asterisk[topCpu]'
+          delay: 5m
+          history: 7d
+          trends: '0'
+          value_type: TEXT
+          description: 'Top 10 processes by CPU usage. One line per process: "CPU% NAME PID", sorted descending. 100% means the total capacity of all cores; the value is measured over a 1 second interval at the moment of polling. Spaces in a process name are replaced with underscores.'
         - uuid: 79923cd175d24afd87e71a895100eb65
           name: 'MikoPBX: Storage total size'
           key: 'vfs.fs.size[/storage,total]'
