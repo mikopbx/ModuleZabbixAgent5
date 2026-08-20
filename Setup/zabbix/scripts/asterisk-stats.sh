@@ -144,27 +144,54 @@ trunkCalls(){
     fi
 }
 
+# Function to print the command line of a process
+# The kernel comm value is only the executable name truncated to 15 characters,
+# so every PHP worker would show up as "php". The full command line carries the
+# process title that MikoPBX workers set for themselves, e.g.
+# "MikoPBX\Core\Workers\WorkerCallEvents".
+# Falls back to comm in brackets for kernel threads, which have no command line.
+procCmdline(){
+    # Newlines and tabs are squashed together with the NUL separators: an
+    # argument may contain them, and one process must stay on one line
+    cmd=$({ /bin/busybox tr '\0\n\t' '   ' < "/proc/$1/cmdline"; } 2>/dev/null \
+          | /bin/busybox cut -c1-120 \
+          | /bin/busybox sed 's/[[:space:]]*$//')
+    if [ "${cmd}x" = "x" ]; then
+        cmd=$(/bin/busybox cat "/proc/$1/comm" 2>/dev/null)
+        # The process is already gone if even comm cannot be read
+        if [ "${cmd}x" = "x" ]; then
+            cmd="exited"
+        fi
+        cmd="[${cmd}]"
+    fi
+    echo "$cmd"
+}
+
 # Function to list the top 10 processes by resident memory
-# Output: one line per process, "RSS_MB NAME PID", sorted by RSS descending.
+# Output: one line per process, "RSS_MB PID COMMAND", sorted by RSS descending.
+# COMMAND comes last because a command line may contain spaces.
 # Kernel threads have no VmRSS line and are skipped automatically.
 topMem(){
     # Errors are suppressed: processes may die between glob expansion and read
     /bin/busybox cat /proc/[0-9]*/status 2>/dev/null \
     | /bin/busybox awk '
-        /^Name:/  { name=$2; for (i=3; i<=NF; i++) { name = name "_" $i } next }
         /^Pid:/   { pid=$2; next }
-        /^VmRSS:/ { printf "%d %s %s\n", $2, pid, name }
+        /^VmRSS:/ { printf "%d %s\n", $2, pid }
       ' \
     | /bin/busybox sort -rn \
     | /bin/busybox head -n 10 \
-    | /bin/busybox awk '{ printf "%.1fM %s %s\n", $1/1024, $3, $2 }'
+    | /bin/busybox awk '{ printf "%.1fM %s\n", $1/1024, $2 }' \
+    | while read -r rss pid; do
+        echo "$rss $pid $(procCmdline "$pid")"
+      done
 }
 
 # Function to list the top 10 processes by CPU usage
 # Two samples of /proc/<pid>/stat one second apart; the percentage is the delta
 # of (utime+stime) divided by the delta of the total jiffies of all CPUs.
 # 100% therefore means the full capacity of all cores ("Irix off" in top terms).
-# Output: one line per process, "CPU% NAME PID", sorted descending.
+# Output: one line per process, "CPU% PID COMMAND", sorted descending.
+# COMMAND comes last because a command line may contain spaces.
 topCpu(){
     {
         /bin/busybox cat /proc/stat /proc/[0-9]*/stat 2>/dev/null
@@ -180,16 +207,14 @@ topCpu(){
             next
         }
         $1 ~ /^[0-9]+$/ {
-            # comm may contain spaces and parentheses: take everything between
+            # comm may contain spaces and parentheses: skip everything between
             # the first "(" and the last ")", numeric fields start after it
             if (match($0, /\(.*\)/) == 0) { next }
             pid=$1
-            name=substr($0, RSTART+1, RLENGTH-2)
-            gsub(/[ \t]/, "_", name)
             # after ")" the first field is state (field 3), so utime (field 14)
             # is f[12] and stime (field 15) is f[13]
             if (split(substr($0, RSTART+RLENGTH+1), f) < 13) { next }
-            if (phase == 2) { t2[pid]=f[12]+f[13]; nm[pid]=name } else { t1[pid]=f[12]+f[13] }
+            if (phase == 2) { t2[pid]=f[12]+f[13] } else { t1[pid]=f[12]+f[13] }
         }
         END {
             dt = total2 - total1
@@ -197,14 +222,16 @@ topCpu(){
             for (p in t2) {
                 if (p in t1) {
                     d = t2[p] - t1[p]
-                    if (d > 0) { printf "%.1f %s %s\n", d*100/dt, nm[p], p }
+                    if (d > 0) { printf "%.1f %s\n", d*100/dt, p }
                 }
             }
         }
       ' \
     | /bin/busybox sort -rn \
     | /bin/busybox head -n 10 \
-    | /bin/busybox awk '{ printf "%s%% %s %s\n", $1, $2, $3 }'
+    | while read -r pct pid; do
+        echo "$pct% $pid $(procCmdline "$pid")"
+      done
 }
 
 # Execute the function passed as an argument with whitelist validation
